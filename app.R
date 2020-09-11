@@ -110,9 +110,9 @@ names(lista_variables_borme) <- c("uno","dos","tres","cuatro","cinco","seis","si
 # =======================
 
 # Carga datos
-df_tipo_expediente <- read.xlsx(xlsxFile = "C:/TechFriendly/Aranda de Duero/shiny borme/publicacio_erto_01072020.xlsx", sheet = 6, skipEmptyRows = TRUE)
-df_expediente_econom <- read.xlsx(xlsxFile = "C:/TechFriendly/Aranda de Duero/shiny borme/publicacio_erto_01072020.xlsx", sheet = 7, skipEmptyRows = TRUE)
-df_expediente_trabajo <- read.xlsx(xlsxFile = "C:/TechFriendly/Aranda de Duero/shiny borme/publicacio_erto_01072020.xlsx", sheet = 8, skipEmptyRows = TRUE)
+df_tipo_expediente <- read.xlsx(xlsxFile = "publicacio_erto_01072020.xlsx", sheet = 6, skipEmptyRows = TRUE)
+df_expediente_econom <- read.xlsx(xlsxFile = "publicacio_erto_01072020.xlsx", sheet = 7, skipEmptyRows = TRUE)
+df_expediente_trabajo <- read.xlsx(xlsxFile = "publicacio_erto_01072020.xlsx", sheet = 8, skipEmptyRows = TRUE)
 
 # Eliminar fila 1, informativa
 df_tipo_expediente <- df_tipo_expediente[-1,]
