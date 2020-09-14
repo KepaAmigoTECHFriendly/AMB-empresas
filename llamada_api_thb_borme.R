@@ -21,10 +21,10 @@ library(RCurl)
 llamada_atributos <- function(){
   #Petición API GET atributos activo
   #Creación url para petición get a Thingsboard API atributos activo
-  url_activo_ermua <- "http://88.99.184.100:8080/api/plugins/telemetry/ASSET/54ced7f0-d624-11ea-889e-e568db1610d0/values/attributes"
+  url_activo_ermua <- "http://78.47.39.122:8080/api/plugins/telemetry/ASSET/75735c10-f410-11ea-8516-4bb5f766e555/values/attributes"
 
   #Petición API REST THB y extracción JSON
-  json_activo <- GET(url_activo_ermua, add_headers("Content-Type"="application/json","Accept"="application/json","X-Authorization"="Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJrZXBhQHRlY2hmcmllbmRseS5lcyIsInNjb3BlcyI6WyJURU5BTlRfQURNSU4iXSwidXNlcklkIjoiZTUwMjYwYjAtOWY4MC0xMWVhLTg4OWUtZTU2OGRiMTYxMGQwIiwiZmlyc3ROYW1lIjoiS2VwYSIsImxhc3ROYW1lIjoiQW1pZ28iLCJlbmFibGVkIjp0cnVlLCJpc1B1YmxpYyI6ZmFsc2UsInRlbmFudElkIjoiYTY1MTJlZjAtOWY4MC0xMWVhLTg4OWUtZTU2OGRiMTYxMGQwIiwiY3VzdG9tZXJJZCI6IjEzODE0MDAwLTFkZDItMTFiMi04MDgwLTgwODA4MDgwODA4MCIsImlzcyI6InRoaW5nc2JvYXJkLmlvIiwiaWF0IjoxNTk2NTQxOTE0LCJleHAiOjI1OTY1NDE5MTN9.fhq8wzFWAEiTeiq_ySnMF1EWX3vpyQBY-JX4ny_ZvClGQZSb8-Lhp9hHiA3pwbFTf-VC3c50f0ceMXd7Ow3jMQ"))
+  json_activo <- GET(url_activo_ermua, add_headers("Content-Type"="application/json","Accept"="application/json","X-Authorization"="Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJrZXBhQHRlY2hmcmllbmRseS5lcyIsInNjb3BlcyI6WyJURU5BTlRfQURNSU4iXSwidXNlcklkIjoiZjM2N2EyZDAtZWRjZi0xMWVhLTg1MTYtNGJiNWY3NjZlNTU1IiwiZmlyc3ROYW1lIjoiS2VwYSIsImVuYWJsZWQiOnRydWUsImlzUHVibGljIjpmYWxzZSwidGVuYW50SWQiOiI1ODZkMTI4MC1kZDY1LTExZWEtOWNiZS04YjU2MDliNDk3MWEiLCJjdXN0b21lcklkIjoiMTM4MTQwMDAtMWRkMi0xMWIyLTgwODAtODA4MDgwODA4MDgwIiwiaXNzIjoidGhpbmdzYm9hcmQuaW8iLCJpYXQiOjE2MDAwNzQ0ODUsImV4cCI6MTYwMDA4MzQ4NX0.5WT8E7PZrFkPtKKgYMpuZV6ZF-T0iVt0OyUNMd5SfulItHaU-olnnFf0WDROs_1jz8MyQRmM4jcDxPJof7YvoQ"))
 
   df_atributos <- jsonlite::fromJSON(content(json_activo, as="text"))
 
@@ -44,20 +44,20 @@ llamada_api <- function(fecha_inicial, fecha_final){
   #Tiempo final en formato unix
   t_final_unix <- format((as.numeric(anytime(fecha_final))*1000)+54000000,scientific = F)  #Añade 15h al unix timestamp para asegurar la captura de los datos.
 
-  #url <- str_squish(paste("http://88.99.184.239:8080/api/plugins/telemetry/DEVICE/ba14afe0-174d-11ea-8d11-75ab75e08f4f/values/timeseries?keys=EMPRESA,Latitud,Longitud",variables_dato,
+  #url <- str_squish(paste("http://78.47.39.122:8080/api/plugins/telemetry/DEVICE/c0cebdd0-f410-11ea-8516-4bb5f766e555/values/timeseries?keys=EMPRESA,Latitud,Longitud",variables_dato,
    #            "&startTs=",t_inicial_unix,"&endTs=",t_final_unix,
     #           "&interval=1&limit=1000000&agg=NONE",sep = ""))
 
-  keys <- URLencode("EMPRESA,Fusion_sociedades_absorbidas,Modificaciones_estatutarias,Cambio_denominacion_social,Cambio_domicilio_social,Cambio_objeto_social,Ceses_liquiSoli,Ceses_apoderado,Ceses_adminUnico,Ceses_liquidador,Ceses_liquidador_mancom,Ceses_adminSolid,Ceses_adminMan,Ceses_socprof,Ceses_depositorio,Ceses_entidDeposit,Ceses_entdPromo,Ceses_consejero,Ceses_vicepresidente,Ceses_presidente,Ceses_secretario,Nombr_liquiSoli,Nombr_apoderado,Nombr_adminUnico,Nombr_liquidador,Nombr_liquidador_mancom,Nombr_adminSolid,Nombr_socprof,Nombr_auditor,Nombr_adminMan,Nombr_entidDeposit,Nombr_entdPromo,Nombr_consejero,Nombr_vicepresidente,Nombr_presidente,Nombr_secretario,Ampl_Cap_suscrito,Ampl_Cap_resultante_suscrito,Ampl_Cap_desembolsado,Ampl_Cap_resultante_desembolsado,Ampl_Cap_capital,declaracion_unipersonalidad_socio_unico,Reduc_Cap_importe_reduccion,Reduc_Cap_resultante_suscrito,Reelecciones_adminUnico,Reelecciones_auditor,Reelecciones_auditor_suplente,Revocaciones_auditor,Revocaciones_apoderado,Revocaciones_apoderadoMAn,Revocaciones_apoderadoSol,Sit_conc_procedimiento,Sit_conc_firme,Sit_conc_fecha_resolucion,Sit_conc_proceso,Sit_conc_juzgado,Sit_conc_juez,Sit_conc_resoluciones,Disolucion,Extincion,Const_comienzo_operaciones,Const_objeto_social,Const_domicilio,Const_capital,Otros_conceptos,Datos_registrales,Latitud,Longitud,Municipio empresa,Distancia respecto municipio km,Provincia Borme")
+  keys <- URLencode("EMPRESA,Fusion_sociedades_absorbidas,Modificaciones_estatutarias,Cambio_denominacion_social,Cambio_domicilio_social,Cambio_objeto_social,Ceses_liquiSoli,Ceses_apoderado,Ceses_adminUnico,Ceses_liquidador,Ceses_liquidador_mancom,Ceses_adminSolid,Ceses_adminMan,Ceses_socprof,Ceses_depositorio,Ceses_entidDeposit,Ceses_entdPromo,Ceses_consejero,Ceses_vicepresidente,Ceses_presidente,Ceses_secretario,Nombr_liquiSoli,Nombr_apoderado,Nombr_adminUnico,Nombr_liquidador,Nombr_liquidador_mancom,Nombr_adminSolid,Nombr_socprof,Nombr_auditor,Nombr_adminMan,Nombr_entidDeposit,Nombr_entdPromo,Nombr_consejero,Nombr_vicepresidente,Nombr_presidente,Nombr_secretario,Ampl_Cap_suscrito,Ampl_Cap_resultante_suscrito,Ampl_Cap_desembolsado,Ampl_Cap_resultante_desembolsado,Ampl_Cap_capital,declaracion_unipersonalidad_socio_unico,Reduc_Cap_importe_reduccion,Reduc_Cap_resultante_suscrito,Reelecciones_adminUnico,Reelecciones_auditor,Reelecciones_auditor_suplente,Revocaciones_auditor,Revocaciones_apoderado,Revocaciones_apoderadoMAn,Revocaciones_apoderadoSol,Sit_conc_procedimiento,Sit_conc_firme,Sit_conc_fecha_resolucion,Sit_conc_proceso,Sit_conc_juzgado,Sit_conc_juez,Sit_conc_resoluciones,Escision_parcial,Denom_y_forma,Disolucion,Extincion,Const_comienzo_operaciones,Const_objeto_social,Const_domicilio,Const_capital,Otros_conceptos,Datos_registrales,Latitud,Longitud,Municipio empresa,Distancia respecto municipio km,Provincia Borme")
 
-  url <- str_squish(paste("http://88.99.184.100:8080/api/plugins/telemetry/DEVICE/c2cfe010-d637-11ea-889e-e568db1610d0/values/timeseries?keys=",
+  url <- str_squish(paste("http://78.47.39.122:8080/api/plugins/telemetry/DEVICE/c0cebdd0-f410-11ea-8516-4bb5f766e555/values/timeseries?keys=",
                           keys,
                           "&startTs=",t_inicial_unix,"&endTs=",t_final_unix,
                           "&interval=1&limit=1000000&agg=NONE",sep = ""))
 
 
   #Petición API REST THB y extracción JSON
-  json <- GET(url, add_headers("Content-Type"="application/json","Accept"="application/json","X-Authorization"="Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJrZXBhQHRlY2hmcmllbmRseS5lcyIsInNjb3BlcyI6WyJURU5BTlRfQURNSU4iXSwidXNlcklkIjoiZTUwMjYwYjAtOWY4MC0xMWVhLTg4OWUtZTU2OGRiMTYxMGQwIiwiZmlyc3ROYW1lIjoiS2VwYSIsImxhc3ROYW1lIjoiQW1pZ28iLCJlbmFibGVkIjp0cnVlLCJpc1B1YmxpYyI6ZmFsc2UsInRlbmFudElkIjoiYTY1MTJlZjAtOWY4MC0xMWVhLTg4OWUtZTU2OGRiMTYxMGQwIiwiY3VzdG9tZXJJZCI6IjEzODE0MDAwLTFkZDItMTFiMi04MDgwLTgwODA4MDgwODA4MCIsImlzcyI6InRoaW5nc2JvYXJkLmlvIiwiaWF0IjoxNTk2NTQxOTE0LCJleHAiOjI1OTY1NDE5MTN9.fhq8wzFWAEiTeiq_ySnMF1EWX3vpyQBY-JX4ny_ZvClGQZSb8-Lhp9hHiA3pwbFTf-VC3c50f0ceMXd7Ow3jMQ"))
+  json <- GET(url, add_headers("Content-Type"="application/json","Accept"="application/json","X-Authorization"="Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJrZXBhQHRlY2hmcmllbmRseS5lcyIsInNjb3BlcyI6WyJURU5BTlRfQURNSU4iXSwidXNlcklkIjoiZjM2N2EyZDAtZWRjZi0xMWVhLTg1MTYtNGJiNWY3NjZlNTU1IiwiZmlyc3ROYW1lIjoiS2VwYSIsImVuYWJsZWQiOnRydWUsImlzUHVibGljIjpmYWxzZSwidGVuYW50SWQiOiI1ODZkMTI4MC1kZDY1LTExZWEtOWNiZS04YjU2MDliNDk3MWEiLCJjdXN0b21lcklkIjoiMTM4MTQwMDAtMWRkMi0xMWIyLTgwODAtODA4MDgwODA4MDgwIiwiaXNzIjoidGhpbmdzYm9hcmQuaW8iLCJpYXQiOjE2MDAwNzQ0ODUsImV4cCI6MTYwMDA4MzQ4NX0.5WT8E7PZrFkPtKKgYMpuZV6ZF-T0iVt0OyUNMd5SfulItHaU-olnnFf0WDROs_1jz8MyQRmM4jcDxPJof7YvoQ"))
   json3 <- rjson::fromJSON(content(json, as="text"))
 
   # AVISO DE INEXISTENCIA DE DATOS EN EL INTERVALO DE FECHAS SELECCIONADO

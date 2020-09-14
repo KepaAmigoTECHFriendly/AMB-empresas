@@ -37,7 +37,6 @@ library(lubridate)
 library(shinybusy)
 
 
-
 #Scripts R apoyo externos
 source("llamada_api_thb_borme.R")
 
@@ -84,21 +83,20 @@ m <- municipios$M
 municipios <- municipios[,c(1,5)]
 
 
-
 # MODIFICACIONES DE AYUDA
 # Ayuda selección variables BORME
-uno <- c("Constitución comienzo operaciones","Constitución objeto social", "Constitución domicilio social","Constitución capital")
-dos <- c("Cambio domicilio social","Cambio objeto social")
-tres <- c("Nombramiento Adm. Único","Nombramiento vicepresidente", "Nombramiento presidente")
-cuatro <- c("Ampliación capital","Ampliación capital suscrito","Reducción capital importe reducción","Reducción capital resultante suscrito")
-cinco <- "Fusión sociedades abosrbidas"
-seis <- "Disolución"
-siete <- "Extinción"
-ocho <- "Escisión"
-nueve <- "Transformación"
-diez <- "Situación Concursal Resoluciones"
-cuatro_uno <- c("Ampliación capital","Ampliación capital suscrito")
-cuatro_dos <- c("Reducción capital importe reducción","Reducción capital resultante suscrito")
+uno <- c("Constitució començament operacions","Constitució objecte social","Constitució domicili social","Constitució capital")
+dos <- c("Canvi domicili social","Canvi objecte social")
+tres <- c("Nomenament Adm. Únic","Nomenament vicepresident","Nomenament president")
+cuatro <- c("Ampliació capital","Ampliació capital subscrit","Ampliació capital desemborsat","Ampliació capital resultant desemborsat","Reducció capital import reducció","Reducció capital resultant subscrit")
+cinco <- "Fusió societats abosrbidas"
+seis <- "Dissolució"
+siete <- "Extinció"
+ocho <- "Escissió"
+nueve <- "Transformació"
+diez <- "Situació Concursal Resolucions"
+cuatro_uno <- c("Ampliació capital","Ampliació capital subscrit","Ampliació capital desemborsat","Ampliació capital resultant desemborsat")
+cuatro_dos <- c("Reducció capital import reducció","Reducció capital resultant subscrit")
 
 lista_variables_borme <- list(uno,dos,tres,cuatro,cinco,seis,siete,ocho,nueve,diez,cuatro_uno,cuatro_dos)
 names(lista_variables_borme) <- c("uno","dos","tres","cuatro","cinco","seis","siete","ocho","nueve","diez","cuatro_uno","cuatro_dos")
@@ -231,49 +229,49 @@ ui <- fluidPage(style = "width: 100%; height: 100%;",
                 
                 
                 
-                navbarPage(id ="menu", "Menú empresas",
+                navbarPage(id ="menu", "Menú empreses",
                            
                            tabPanel("BORME",
                                     sidebarLayout(
                                       # Menú de datos
                                       sidebarPanel(
                                         
-                                        selectInput("Municipio_principal", "Seleccione el territorio de referencia",
+                                        selectInput("Municipio_principal", "Seleccioneu el territori de referència",
                                                     c(as.character(mun),"AMB", "AMB sense Barcelona ciutat", "Barcelona ciutat", "Barcelona provincia")
                                         ),
-                                        radioButtons(inputId="comparaciones",label="Seleccione el territorio de comparación",choices=c("AMB", "AMB sense Barcelona ciutat", "Barcelona ciutat", "Barcelona provincia", "Un altre municipi"),
-                                                     selected = "AMB"),
-                                        selectInput("Municipio_comparaciones", "Seleccione el municipio de comparación",
+                                        radioButtons(inputId="comparaciones",label="Seleccioneu el territori de comparació",choices=c("AMB", "AMB sense Barcelona ciutat", "Barcelona ciutat", "Barcelona provincia", "Un altre municipi"),
+                                                     selected = "Barcelona provincia"),
+                                        selectInput("Municipio_comparaciones", "Seleccioneu el municipio de comparació",
                                                     municipios$Municipio[municipios$AMB == 1]),
                                         
-                                        dateRangeInput("fechas_listado_borme","Seleccione el intervalo de fechas",start = (Sys.Date() - 30), end = (Sys.Date() - 30)),
+                                        dateRangeInput("fechas_listado_borme","Seleccioneu el intervalo de dates",start = (Sys.Date() - 30), end = (Sys.Date() - 30)),
                                         
                                         checkboxGroupInput("variables_borme_listado", label = "Selección variables",
-                                                           choices = list("Constitución" = 1,
-                                                                          "Cambios" = 2,
-                                                                          "Nombramientos" = 3,
-                                                                          "Ampliación capital" = 11,
-                                                                          "Reducción capital" = 12,
-                                                                          "Fusión" = 5,
-                                                                          "Disolución" = 6,
-                                                                          "Extinción" = 7,
-                                                                          "Escisión" = 8,
-                                                                          "Transformación" = 9,
-                                                                          "Situación concursal" = 10),
+                                                           choices = list("Constitució" = 1,
+                                                                          "Canvis" = 2,
+                                                                          "Nomenaments" = 3,
+                                                                          "Ampliació de capital" = 11,
+                                                                          "Reducció de capital" = 12,
+                                                                          "Fusió" = 5,
+                                                                          "Dissolució" = 6,
+                                                                          "Extinció" = 7,
+                                                                          "Escissió" = 8,
+                                                                          "Transformació" = 9,
+                                                                          "Situació concursal" = 10),
                                                            selected = 1
                                         ),
                                         
-                                        radioButtons("variables_mapa", "Selección variables",
-                                                     c("Constitución" = 1,
-                                                       "Cambio domicilio social" = 2)),
+                                        radioButtons("variables_mapa", "Selecció variables",
+                                                     c("Constitució" = 1,
+                                                       "Canvi de domicili social" = 2)),
                                         
                                         # Búsqueda por objeto social
                                         #textInput("palabra_clave_listado_borme", "Búsqueda por objeto social"),
                                         
                                         # Boton descarga borme
-                                        downloadButton("descarga_borme_csv", "Descarga datos en .csv"),
+                                        downloadButton("descarga_borme_csv", "Descàrrega dades en .csv"),
                                         br(),
-                                        downloadButton("descarga_borme_xlsx", "Descarga datos en .xlsx"),
+                                        downloadButton("descarga_borme_xlsx", "Descàrrega dades en .xlsx"),
                                         width=3
                                       ),
                                       
@@ -281,7 +279,7 @@ ui <- fluidPage(style = "width: 100%; height: 100%;",
                                         tabsetPanel(id = "tabs_borme",
                                                     
                                                     tabPanel(id = "tab_listado",
-                                                             "Listado informativo",   #Con span genero un popup de ayuda.
+                                                             "Llistat informatiu",   #Con span genero un popup de ayuda.
                                                              
                                                              # Panel DATAFRAME
                                                              fluidRow(style='padding-top: 18px;',
@@ -291,7 +289,7 @@ ui <- fluidPage(style = "width: 100%; height: 100%;",
                                                     ),
                                                     
                                                     tabPanel(id = "tab_estadistica_basica",
-                                                             "Estadística básica 1",   #Con span genero un popup de ayuda.
+                                                             "Estadística bàsica 1",   #Con span genero un popup de ayuda.
                                                              
                                                              # Panel DATAFRAME
                                                              fluidRow(style='padding-top: 18px;',
@@ -307,7 +305,7 @@ ui <- fluidPage(style = "width: 100%; height: 100%;",
                                                     ),
                                                     
                                                     tabPanel(id = "tab_estadistica_basica_2",
-                                                             "Estadística básica 2",   #Con span genero un popup de ayuda.
+                                                             "Estadística bàsica 2",   #Con span genero un popup de ayuda.
                                                              
                                                              # Panel DATAFRAME
                                                              fluidRow(style='padding-top: 18px;',
@@ -323,7 +321,7 @@ ui <- fluidPage(style = "width: 100%; height: 100%;",
                                                     ),
                                                     
                                                     tabPanel(id = "tab_capital",
-                                                             "Modificaciones capital",
+                                                             "Modificacions capital",
                                                              
                                                              # Panel DATAFRAME
                                                              fluidRow(style='padding-bottom: 25px;',
@@ -346,7 +344,7 @@ ui <- fluidPage(style = "width: 100%; height: 100%;",
                                                     ),
                                                     
                                                     tabPanel(id = "tab_mapa",
-                                                             "Info mapa",
+                                                             "Mapa",
                                                              # Panel MAPA
                                                              fluidRow(style='padding-bottom: 25px;',
                                                                       uiOutput("texto_borme_mapa"),
@@ -369,24 +367,24 @@ ui <- fluidPage(style = "width: 100%; height: 100%;",
                                     sidebarLayout(
                                       # Menú de datos
                                       sidebarPanel(
-                                        selectInput("Municipio_principal_ertes", "Seleccione el territorio de referencia",
+                                        selectInput("Municipio_principal_ertes", "Seleccioneu el territori de referència",
                                                     c(as.character(mun),"AMB", "AMB sense Barcelona ciutat", "Barcelona ciutat", "Barcelona provincia", "Catalunya")
                                         ),
                                         
-                                        dateRangeInput("fechas_listado_ertes","Seleccione el intervalo de fechas",start = "2020-08-01", end = Sys.Date()),
+                                        dateRangeInput("fechas_listado_ertes","Seleccioneu l'interval de dates",start = "2020-08-01", end = Sys.Date()),
                                         
-                                        radioButtons("variables_ertes", "Selección variable",
-                                                     c("Expedientes" = 1,
-                                                       "Treballadores" = 2)),
+                                        radioButtons("variables_ertes", "Selecció variable",
+                                                     c("Expedients" = 1,
+                                                       "Treballadors" = 2)),
                                         
-                                        checkboxGroupInput("variables_ertes_sec_ecc", label = "Selección variables",
-                                                           choices = c(colnames(df_expediente_econom)[4:25],"Top 3","Todos","Ninguno"),
+                                        checkboxGroupInput("variables_ertes_sec_ecc", label = "Selecció variables",
+                                                           choices = c(colnames(df_expediente_econom)[4:25],"Top 3","Tots","Cap"),
                                                            selected = "Top 3"),
                                         
                                         # Boton descarga ertes
-                                        downloadButton("descarga_ertes_csv", "Descarga datos en .csv"),
+                                        downloadButton("descarga_ertes_csv", "Descàrrega dades en .csv"),
                                         br(),
-                                        downloadButton("descarga_ertes_xlsx", "Descarga datos en .xlsx"),
+                                        downloadButton("descarga_ertes_xlsx", "Descàrrega dades en .xlsx"),
                                         width=3
                                       ),
                                       
@@ -394,7 +392,7 @@ ui <- fluidPage(style = "width: 100%; height: 100%;",
                                         tabsetPanel(id = "tabs_ertes",
                                                     
                                                     tabPanel(id = "expedientes",
-                                                             "Expedientes por tipo",
+                                                             "Expedients per tipus",
                                                              
                                                              fluidRow(style='padding-top: 18px;',
                                                                       uiOutput("texto_tabla_ertes_expedientes_recuento"),
@@ -412,7 +410,7 @@ ui <- fluidPage(style = "width: 100%; height: 100%;",
                                                     ),
                                                     
                                                     tabPanel(id = "secc_econom",
-                                                             "Expedientes por sección económica",   
+                                                             "Expedients per secció econòmica",   
                                                              
                                                              # Panel DATAFRAME
                                                              fluidRow(style='padding-top: 18px;',
@@ -471,19 +469,19 @@ server <- function(input, output, session) {
     
     #Lógica visualización selección variables en mapa
     observeEvent(input$tabs_borme, {
-      if(input$tabs_borme == "Info mapa"){
+      if(input$tabs_borme == "Mapa"){
         shinyjs::hide("comparaciones")
         shinyjs::hide("variables_borme_listado")
         shinyjs::show("variables_mapa")
-      }else if(input$tabs_borme == "Modificaciones capital"){
+      }else if(input$tabs_borme == "Modificacions capital"){
         shinyjs::hide("comparaciones")
         shinyjs::hide("variables_borme_listado")
         shinyjs::hide("variables_mapa")
-      }else if(input$tabs_borme == "Listado informativo"){
+      }else if(input$tabs_borme == "Llistat informatiu"){
         shinyjs::hide("comparaciones")
         shinyjs::show("variables_borme_listado")
         shinyjs::hide("variables_mapa")
-      }else if(input$tabs_borme == "Estadística básica 2"){
+      }else if(input$tabs_borme == "Estadística bàsica 2"){
         shinyjs::show("comparaciones")
         shinyjs::show("variables_borme_listado")
         shinyjs::hide("variables_mapa")
@@ -505,13 +503,13 @@ server <- function(input, output, session) {
     
     #Actualización de checkboxes mediante selector Tots.
     observeEvent(input$variables_ertes_sec_ecc,{
-      if(any(grepl("Todos",input$variables_ertes_sec_ecc))){
+      if(any(grepl("Tots",input$variables_ertes_sec_ecc))){
         updateCheckboxGroupInput(session, inputId = "variables_ertes_sec_ecc", 
-                                 selected = c(colnames(df_expediente_econom)[4:25],"Todos")
+                                 selected = c(colnames(df_expediente_econom)[4:25],"Tots")
         )
-      }else if(any(grepl("Ninguno",input$variables_ertes_sec_ecc))){
+      }else if(any(grepl("Cap",input$variables_ertes_sec_ecc))){
         updateCheckboxGroupInput(session, inputId = "variables_ertes_sec_ecc", 
-                                 selected = "Ninguno"
+                                 selected = "Cap"
         )
       }else{
         updateCheckboxGroupInput(session, inputId = "variables_ertes_sec_ecc", 
@@ -588,8 +586,6 @@ server <- function(input, output, session) {
         
         datos_borme <- datos$borme
         
-        print(colnames(datos_borme))
-        
         nombres <- c("Empresa","Fusión sociedades abosrbidas", "Modificaciones estatutarias",
                      "Cambio denominación social", "Cambio domicilio social", "Cambio objeto social",
                      "Ceses liquiSoli", "Ceses apoderado", "Ceses Adm. Único",
@@ -609,7 +605,7 @@ server <- function(input, output, session) {
                      "Revocaciones apoderado", "Revocaciones apoderado mancomunado", "Revocaciones apoderadoSol",
                      "Situación Concursal Procedimiento", "Situación Concursal Resolución firme","Situación Concursal Fecha Resolución",
                      "Situación Concursal Proceso", "Situación Concursal Juzgado", "Situación Concursal Juez",
-                     "Situación Concursal Resoluciones","Disolución", "Extinción",
+                     "Situación Concursal Resoluciones", "Escisión", "Transformación", "Disolución", "Extinción",
                      "Constitución comienzo operaciones", "Constitución objeto social","Constitución domicilio social",
                      "Constitución capital", "Otros conceptos","Datos registrales",
                      "Latitud", "Longitud","Municipio",
@@ -618,15 +614,19 @@ server <- function(input, output, session) {
         )
 
         #provincias <- tolower(atributos_Borme()$value[atributos_Borme()$key == "Provincias"])
+        
+        if(datos_borme == 0){
+          return(0)
+        }
 
         # Manejo de error: "inexistencia de datos para el intervalo de fechas seleccionado" de cara al usuario
-        shiny::validate(
-            need(datos_borme != 0, "¡Aviso!\nNo existen datos disponibles para el intervalo de fechas seleccionado.\nSelecciona otro intervalo si lo deseas.")
-        )
+        #shiny::validate(
+        #need(datos_borme != 0, "¡Atenció!\nNo existeixen dades disponibles per a l'interval de dates seleccionat.\nSelecciona un altre interval si ho desitja.")
+            #)
 
         #datos_borme <- datos_borme[str_detect(provincias, gsub("/.*","",tolower(datos_borme$Provincia))), ]
         colnames(datos_borme) <- nombres
-        datos_borme <- datos_borme[,c(1,2,5,6,24,34,35,59,60,61,62,63,64,41,37,39,43,44,58,67,68,69,72)]
+        datos_borme <- datos_borme[,c(1,2,5,6,24,34,35,59,60,61,62,63,64,65,66,41,37,39,40,43,44,58,69,70,71,74)]
 
         #Generación forma jurídica
         forma_juridica <- c()
@@ -651,6 +651,12 @@ server <- function(input, output, session) {
         datos_borme$AMB <- municipios$AMB[match(datos_borme$Municipio, municipios$Municipio)]
         datos_borme$Fecha <- as.character(datos_borme$Fecha)
         
+        nombres_catala <- c("Denominació social","Fusió societats abosrbidas","Canvi domicili social","Canvi objecte social","Nomenament Adm. Únic","Nomenament vicepresident",
+                            "Nomenament president","Escissió","Transformació","Dissolució","Extinció","Constitució començament operacions","Constitució objecte social",
+                            "Constitució domicili social","Constitució capital","Ampliació capital","Ampliació capital subscrit","Ampliació capital desemborsat",
+                            "Ampliació capital resultant desemborsat","Reducció capital import reducció","Reducció capital resultant subscrit","Situació Concursal Resolucions",
+                            "Latitud","Longitud","Municipio","Data","Forma Jurídica","AMB")
+        colnames(datos_borme) <- nombres_catala
 
         return(datos_borme)
     })
@@ -664,23 +670,23 @@ server <- function(input, output, session) {
 
         df <- datos_estructurados_borme()  #Llamada a API
         
-        if(input$tabs_borme == "Info mapa"){
+        if(df == 0){
+          return(0)
+        }
+        
+        if(input$tabs_borme == "Mapa"){
           variables_entrada <- input$variables_mapa
-        }else if(input$tabs_borme == "Modificaciones capital"){
+        }else if(input$tabs_borme == "Modificacions capital"){
           variables_entrada <- "4"
         }else{
           variables_entrada <- input$variables_borme_listado
         }
         
+        
         #1)Filtrado en funcón de tab
-        df <- df[,c("Empresa",unlist(lista_variables_borme[as.numeric(variables_entrada)]),"Latitud","Longitud","Municipio","Fecha","Forma Jurídica","AMB")]
+        df <- df[,c("Denominació social",unlist(lista_variables_borme[as.numeric(variables_entrada)]),"Latitud","Longitud","Municipio","Data","Forma Jurídica","AMB")]
 
         #df <- na.omit(df)
-        
-        
-        print(colnames(df[,2:(ncol(df)-6)]))
-        print(is.null(colnames(df[,2:(ncol(df)-6)])) & ncol(df) != 8)
-        
         
         if(ncol(df) == 0){
           return(0)
@@ -735,6 +741,22 @@ server <- function(input, output, session) {
 
         df <- datos_estructurados_borme()  #Llamada a API
         
+        if(df == 0 | df == 1 | df == 2){
+          return(df)
+        }
+
+        if(input$tabs_borme == "Mapa"){
+          variables_entrada <- input$variables_mapa
+        }else if(input$tabs_borme == "Modificacions capital"){
+          variables_entrada <- "4"
+        }else{
+          variables_entrada <- input$variables_borme_listado
+        }
+        
+        #1)Filtrado en funcón de tab
+        df <- df[,c("Denominació social",unlist(lista_variables_borme[as.numeric(variables_entrada)]),"Latitud","Longitud","Municipio","Data","Forma Jurídica","AMB")]
+        
+        
         if(ncol(df) == 0){
           return(0)
         }else if(is.null(variables_entrada)){
@@ -743,29 +765,15 @@ server <- function(input, output, session) {
           return(2)
         }
         
-        if(df == 0 | df == 1 | df == 2){
-          return(df)
-        }
-
-        if(input$tabs_borme == "Info mapa"){
-          variables_entrada <- input$variables_mapa
-        }else if(input$tabs_borme == "Modificaciones capital"){
-          variables_entrada <- "4"
-        }else{
-          variables_entrada <- input$variables_borme_listado
-        }
-        
-        #1)Filtrado en funcón de tab
-        df <- df[,c("Empresa",unlist(lista_variables_borme[as.numeric(variables_entrada)]),"Latitud","Longitud","Municipio","Fecha","Forma Jurídica","AMB")]
 
         # Manejo de error: "inexistencia de datos para los filtros seleccionados" de cara al usuario
         shiny::validate(
             need(ncol(df) != 0,
-                 "¡Aviso!\nNo existen datos disponibles para el valor de los filtros seleccionados.\nModifica el valor de los filtros si lo deseas.")
+                 "")
         )
         #shiny::validate(
         #need(ncol(df[,2:(ncol(df)-6)]) != 0,
-        #"¡Aviso!\nNo existen datos disponibles para el valor de los filtros seleccionados.\nModifica el valor de los filtros si lo deseas.")
+        #"¡Atenció!\nNo existeixen dades disponibles per al valor dels filtres seleccionats.\nModifica el valor dels filtres si ho desitja.")
         #)
         
         # 2)Filtro Agrupaciones
@@ -787,6 +795,14 @@ server <- function(input, output, session) {
                    }
             )
         }
+        
+        if(nrow(df) == 0){
+          return(0)
+        }else if(is.null(variables_entrada)){
+          return(1)
+        }else if(is.null(colnames(df[,2:(ncol(df)-6)])) & ncol(df) != 8 ){
+          return(2)
+        }
 
         #Eliminación "-" si están en todas las columnas
         df[df=="-"] <- NA
@@ -799,7 +815,7 @@ server <- function(input, output, session) {
         # Manejo de error: "inexistencia de datos para los filtros seleccionados" de cara al usuario
         shiny::validate(
             need(nrow(df) != 0,
-                 "¡Aviso!\nNo existen datos disponibles para el valor de los filtros seleccionados.\nModifica el valor de los filtros si lo deseas.")
+                 "")
         )
 
         return(df)
@@ -873,7 +889,7 @@ server <- function(input, output, session) {
       #Recuento por mes y forma jurídica
       df <- df %>%
         group_by(`Forma Jurídica`, Mes) %>%
-        summarise(Recuento = n())
+        summarise(Recompte = n())
       
       if(flag_return == 1){  # El valor de 1 es para la realización del gráfico de evolución.
         return(df)
@@ -883,12 +899,12 @@ server <- function(input, output, session) {
       df <- df %>%
         group_by(`Forma Jurídica`) %>%
         summarise(
-          Media = round(mean(Recuento),0),
-          Máx = max(Recuento),
-          Mín = min(Recuento),
-          `Desviación estándar` = round(sd(Recuento),2),
-          `Percentil 25` = round(quantile(Recuento,0.25),2),
-          `Percentil 75` = round(quantile(Recuento,0.75),2)
+          Mitjana = round(mean(Recompte),0),
+          Máx = max(Recompte),
+          Mín = min(Recompte),
+          `Desviació tipus` = round(sd(Recompte),2),
+          `Percentil 25` = round(quantile(Recompte,0.25),2),
+          `Percentil 75` = round(quantile(Recompte,0.75),2)
         )
       
       #Generación DF
@@ -930,7 +946,7 @@ server <- function(input, output, session) {
       nombre_columnas <- colnames(df)
       df <- as.data.frame(df[-1,]) #La primera fila no es un valor numérico (resultado de pasar a númerico la forma jurídica)
       colnames(df) <- nombre_columnas
-      rownames(df) <- c("Media", "Máximo", "Mínimo","Desviación estándar","Percentil 25", "Percentil 75")
+      rownames(df) <- c("Mitjana", "Máxim", "Mínim","Desviació tipus","Percentil 25", "Percentil 75")
       
       return(df)
     }
@@ -948,7 +964,110 @@ server <- function(input, output, session) {
           return(df_ref)
         }
         
+        # Cálculo representación en el territorio de referencia
+        df_representacion_en_territorio <- df_ref
+        #Llenado con NAs
+        for(i in 1:ncol(df_ref)){
+          df_representacion_en_territorio[,i] <- rep(NA,nrow(df_ref))
+        }
+        for(i in 1:ncol(df_ref)){
+          df_representacion_en_territorio[,i] <- round(100*(df_ref[,i]/sum(as.numeric(df_ref[1,]))),2)
+        }
+        
         df_comparativa <- func_estadistica_basica(datos_filtrados_borme_comparativa())
+
+        if((df_comparativa == 0 | df_comparativa == 1 | df_comparativa == 2) & !is.data.frame(df_comparativa)){
+          #df_comparativa <- df_ref
+          #df_comparativa[1,] <- rep(NA,ncol(df_comparativa))
+          
+          df <- rbind(df_ref,df_representacion_en_territorio)
+          
+          df$Total <- c(sum(as.numeric(df[1,])),100)
+          rownames(df) <- c("Recompte", "Representació en territori de referència (%)")
+          
+        }else{
+          # Cálculo representación por formas jurídicas respecto terrritorio comparación
+          df_representacion <- df_ref
+          #Llenado con NAs
+          for(i in 1:ncol(df_ref)){
+            df_representacion[,i] <- rep(NA,nrow(df_ref))
+          }
+          for(i in 1:ncol(df_ref)){
+            if(any(colnames(df_comparativa) %in% colnames(df_ref)[i])){
+              df_representacion[,i] <- round(100*(df_ref[,i]/df_comparativa[,which(colnames(df_comparativa) %in% colnames(df_ref)[i])]),2)
+            }
+          }
+          
+          
+          # Cálculo representación en el territorio de comparativa
+          df_representacion_en_territorio_comparativa <- df_ref
+          #Llenado con NAs
+          for(i in 1:ncol(df_ref)){
+            df_representacion_en_territorio_comparativa[,i] <- rep(NA,nrow(df_ref))
+          }
+          for(i in 1:ncol(df_ref)){
+            df_representacion_en_territorio_comparativa[,i] <- round(100*(df_ref[,i]/sum(as.numeric(df_comparativa[1,]))),2)
+          }
+          
+          df <- rbind(df_ref,df_representacion_en_territorio,df_representacion_en_territorio_comparativa,df_representacion)
+          
+          df$Total <- c(sum(as.numeric(df[1,])),100)
+          if(is.na(sum(df[3,1:(ncol(df)-1)]))){
+            df$Total[3] <- NA
+          }else{
+            df$Total[3] <- sum(df[3,1:(ncol(df)-1)])
+          }
+          if(is.na(sum(df[4,1:(ncol(df)-1)]))){
+            df$Total[4] <- NA
+          }else{
+            df$Total[4] <- NA
+          }
+          
+          if(nrow(df) == 1){
+            rownames(df) <- c("Recompte")
+          }else{
+            rownames(df) <- c("Recompte", "Representació en territori de referència (%)", "Representació en territori de comparació (%)","Representació sobre forma jurídica en territori de comparació (%)")
+          }
+        }
+        
+        df
+    })
+
+
+    # 2) Estadistica básica 2
+    estadistica_basica_2 <- reactive({
+
+      #Validación de fechas
+      flag_Avís <- ifelse(abs(month(input$fechas_listado_borme[1])-month(input$fechas_listado_borme[2])) >= 2 |
+                             as.numeric(input$fechas_listado_borme[2] - input$fechas_listado_borme[1]) > 90,
+                           0,1)
+      if(flag_Avís == 1){return(0)}
+
+      #Ajuste fechas usuario para cuadrar meses. Inicio de mes.
+      fecha_inicial <- input$fechas_listado_borme[1]
+      day(fecha_inicial) <- day(fecha_inicial)-(day(fecha_inicial)-1)
+      fecha_final <- input$fechas_listado_borme[2]
+      day(fecha_final) <- day(fecha_final)-(day(fecha_final)-1)
+
+      df <- datos_filtrados_borme()
+      if((df == 0 | df == 1 | df == 2) & !is.data.frame(df)){
+        return(df)
+      }
+      
+      df$Mes <- paste(year(df$Data),"/",month(df$Data),sep = "")  #Extracción de meses
+      df_ref <- recuento_estadistica_basica_2(df,2)  #Flag 2 para devolución con cálculos estadísticos
+
+      if((df_ref == 0 | df_ref == 1 | df_ref == 2) & !is.data.frame(df_ref)){
+        return(df_ref)
+      }
+      
+      df2 <- datos_filtrados_borme_comparativa()
+      
+      if(df2 == 0 | df2 == 1 | df2 == 2){
+        df <- df_ref
+      }else{
+        df2$Mes <- paste(year(df2$Data),"/",month(df2$Data),sep = "")  #Extracción de meses
+        df_comparativa <- recuento_estadistica_basica_2(df2, 2) #Flag 2 para devolución con cálculos estadísticos
         
         df_representacion <- df_ref
         #Llenado con NAs
@@ -966,71 +1085,15 @@ server <- function(input, output, session) {
         df <- rbind(df_ref,df_representacion)
         
         if(nrow(df) == 1){
-          rownames(df) <- c("Recuento")
+          rownames(df) <- c("Mitjana", "Máxim", "Mínim", "Desviació tipus", "Percentil 25", "Percentil 75")
         }else{
-          rownames(df) <- c("Recuento", "Comprativa territorios (%)")
-        }
-        
-        df
-    })
-
-
-    # 2) Estadistica básica 2
-    estadistica_basica_2 <- reactive({
-
-      #Validación de fechas
-      flag_aviso <- ifelse(abs(month(input$fechas_listado_borme[1])-month(input$fechas_listado_borme[2])) >= 2 |
-                             as.numeric(input$fechas_listado_borme[2] - input$fechas_listado_borme[1]) > 90,
-                           0,1)
-      if(flag_aviso == 1){return(0)}
-
-      #Ajuste fechas usuario para cuadrar meses. Inicio de mes.
-      fecha_inicial <- input$fechas_listado_borme[1]
-      day(fecha_inicial) <- day(fecha_inicial)-(day(fecha_inicial)-1)
-      fecha_final <- input$fechas_listado_borme[2]
-      day(fecha_final) <- day(fecha_final)-(day(fecha_final)-1)
-
-      df <- datos_filtrados_borme()
-      if((df == 0 | df == 1 | df == 2) & !is.data.frame(df)){
-        return(df)
-      }
-      
-      df$Mes <- paste(year(df$Fecha),"/",month(df$Fecha),sep = "")  #Extracción de meses
-      df_ref <- recuento_estadistica_basica_2(df,2)  #Flag 2 para devolución con cálculos estadísticos
-
-      if((df_ref == 0 | df_ref == 1 | df_ref == 2) & !is.data.frame(df_ref)){
-        return(df_ref)
-      }
-      
-      df2 <- datos_filtrados_borme_comparativa()
-      if((df2 == 0 | df2 == 1 | df2 == 2) & !is.data.frame(df)){
-        return(df)
-      }
-      df2$Mes <- paste(year(df2$Fecha),"/",month(df2$Fecha),sep = "")  #Extracción de meses
-      df_comparativa <- recuento_estadistica_basica_2(df2, 2) #Flag 2 para devolución con cálculos estadísticos
-
-      df_representacion <- df_ref
-      #Llenado con NAs
-      for(i in 1:ncol(df_ref)){
-        df_representacion[,i] <- rep(NA,nrow(df_ref))
-      }
-      
-      # Cálculo representación
-      for(i in 1:ncol(df_ref)){
-        if(any(colnames(df_comparativa) %in% colnames(df_ref)[i])){
-          df_representacion[,i] <- round(100*(df_ref[,i]/df_comparativa[,which(colnames(df_comparativa) %in% colnames(df_ref)[i])]),2)
+          rownames(df) <- c("Mitjana", "Máxim", "Mínim", "Desviació tipus", "Percentil 25", "Percentil 75",
+                            "Comparació Mitjana (%)", "Comparació Máxim (%)", "Comparació Mínim (%)", "Comparació Desviació tipus (%)", "Comparació Percentil 25 (%)", "Comparació Percentil 75 (%)")
         }
       }
-
-      df <- rbind(df_ref,df_representacion)
       
-      if(nrow(df) == 1){
-        rownames(df) <- c("Media", "Máximo", "Mínimo", "Desviación estándar", "Percentil 25", "Percentil 75")
-      }else{
-        rownames(df) <- c("Media", "Máximo", "Mínimo", "Desviación estándar", "Percentil 25", "Percentil 75",
-                          "Comparación Media (%)", "Comparación Máximo (%)", "Comparación Mínimo (%)", "Comparación Desviación estándar (%)", "Comparación Percentil 25 (%)", "Comparación Percentil 75 (%)")
-      }
-
+      print(df)
+      
       df
     })
 
@@ -1047,7 +1110,7 @@ server <- function(input, output, session) {
         # En caso de solo visualizar la variable empresa, se convierte a objeto tipo entero y hay que volver a reconvertirlo a data.frame
         if(typeof(df_tabla) == "integer"){
             df_tabla <- as.data.frame(df_tabla)
-            names(df_tabla) <- "Empresa"
+            names(df_tabla) <- "`Denominació social`"
         }
         
         if(is.null(nrow(df_tabla))){
@@ -1072,7 +1135,7 @@ server <- function(input, output, session) {
         # Manejo de error: "inexistencia de datos para los filtros seleccionados" de cara al usuario
         shiny::validate(
           need(is.data.frame(df_tabla) & nrow(df_tabla) != 0,
-               "¡Aviso!\nNo existen datos disponibles para el valor de los filtros seleccionados.\nModifica el valor de los filtros si lo deseas.")
+               "¡Atenció!\nNo existeixen dades disponibles per al valor dels filtres seleccionats.\nModifica el valor dels filtres si ho desitja.")
         )
         
         df_tabla <- df_tabla[,1:(ncol(df_tabla)-6)] #Evita la visualización de las variables lat,long,municipio y provincia.
@@ -1080,7 +1143,7 @@ server <- function(input, output, session) {
         # Manejo de error: "inexistencia de datos para los filtros seleccionados" de cara al usuario
         shiny::validate(
             need(!is.null(nrow(df_tabla) & is.data.frame(df_tabla)),
-                 "¡Aviso!\nNo existen datos disponibles para el valor de los filtros seleccionados.\nModifica el valor de los filtros si lo deseas.")
+                 "¡Atenció!\nNo existeixen dades disponibles per al valor dels filtres seleccionats.\nModifica el valor dels filtres si ho desitja.")
         )
         #Límite visualización registros tabla
         tabla <- datatable(df_tabla, options = list(pageLength = 5,
@@ -1104,13 +1167,13 @@ server <- function(input, output, session) {
             need(is.data.frame(df_tabla),
                  switch(as.character(df_tabla),
                         "0"={
-                          "¡Aviso!\nNo existen datos disponibles para el valor de los filtros seleccionados.\nModifica el valor de los filtros si lo deseas."
+                          "¡Atenció!\nNo existeixen dades disponibles per al valor dels filtres seleccionats.\nModifica el valor dels filtres si ho desitja."
                         },
                         "1"={
-                          "¡Aviso!\nNo hay ninguna variable seleccionada.\nPor favor, selecciona al menos una variable."
+                          "¡Atenció!\nNo hi ha cap variable seleccionada.\nSi us plau, selecciona el menys una variable."
                         },
                         "2"={
-                          "¡Aviso!\nNo existen datos disponibles para el valor de los filtros seleccionados.\nModifica el valor de los filtros si lo deseas."
+                          "¡Atenció!\nNo existeixen dades disponibles per al valor dels filtres seleccionats.\nModifica el valor dels filtres si ho desitja."
                         }
                  )
             )
@@ -1135,13 +1198,13 @@ server <- function(input, output, session) {
         # Manejo de error: "inexistencia de datos para los filtros seleccionados" de cara al usuario
         shiny::validate(
           need(df != 0,
-               "¡Aviso!\nEs necesario selecionar un periodo de 2 meses para el cálculo de estadísticas mensuales.\nModifica el valor de los filtros si lo deseas.")
+               "¡Atenció!\nEs necesario selecionar un periodo de 2 meses para el cálculo de estadísticas mensuales.\nModifica el valor dels filtres si ho desitja.")
         )
         
         # Manejo de error: "inexistencia de datos para los filtros seleccionados" de cara al usuario
         shiny::validate(
           need(df != 1,
-               "¡Aviso!\nNo existen datos disponibles para el valor de los filtros seleccionados.\nModifica el valor de los filtros si lo deseas.")
+               "¡Atenció!\nNo existeixen dades disponibles per al valor dels filtres seleccionats.\nModifica el valor dels filtres si ho desitja.")
         )
         
         #Límite visualización registros tabla
@@ -1159,13 +1222,13 @@ server <- function(input, output, session) {
       df_tabla <- manejo_tablas_borme()
       
       if(input$variables_mapa == 1){
-        variable <- "Constitución objeto social"
+        variable <- "Constitució objecte social"
       }else{
-        variable <- "Cambio domicilio social"
+        variable <- "Canvi domicili social"
       }
       shiny::validate(
         need(any(grepl(variable,colnames(na.omit(df_tabla)))) & nrow(na.omit(df_tabla)) != 0,
-             "¡Aviso!\nNo existen datos disponibles para el valor de los filtros seleccionados.\nModifica el valor de los filtros si lo deseas."
+             "¡Atenció!\nNo existeixen dades disponibles per al valor dels filtres seleccionats.\nModifica el valor dels filtres si ho desitja."
         )
       )
       
@@ -1184,47 +1247,55 @@ server <- function(input, output, session) {
       return(tabla)
     })
     
-    # 5) Tabla modificaciones de capital
-    output$tabla_borme_capital <- renderDataTable({
+    #5.1) Reactive ayuda a tabla modificaciones capital
+    ayuda_borme_capital <- reactive({
       
       df <- manejo_tablas_borme()
-
+      
       shiny::validate(
         need(nrow(df) != 0 & is.data.frame(df),
-             "¡Aviso!\nNo hay datos suficientes como para generar el gráfico."
+             "¡Atenció!\nNo hay datos suficientes como para generar el gráfico."
         )
       )
       
       # Paso a númerico capital
-      for(i in 2:5){
+      for(i in 2:7){
         df[,i] <- gsub("[a-z].","",df[,i])
         df[,i] <- gsub("[.]","",df[,i])
         df[,i] <- gsub("[.]","",df[,i])
         df[,i] <- as.numeric(gsub("[,]",".",df[,i]))
       }
       
+      #Incluir desembolsado (es la alternativa a capital, a veces aparece así)
+      for(i in 1:nrow(df)){
+        if(is.na(df$`Ampliació capital`[i])){
+          df$`Ampliació capital`[i] <- df$`Ampliació capital desemborsat`[i]
+          df$`Ampliació capital subscrit`[i] <- df$`Ampliació capital resultant desemborsat`[i]
+        }
+      }
+      
       # Cálculo evoluciones ampliaciones y reducciones de capital
       df <- df %>%
-        mutate(`Evolución ampliación` = 100*((`Ampliación capital suscrito` - `Ampliación capital`)/`Ampliación capital`)) %>%
-        mutate(`Evolución reducción` = 100*(`Reducción capital importe reducción`/(`Reducción capital resultante suscrito` + `Reducción capital importe reducción`)))
-
-      `Evolución ampliación` <- na.omit(df$`Evolución ampliación`)
-      `Evolución reducción` <- na.omit(df$`Evolución reducción`)
+        mutate(`Evolució ampliació` = 100*((`Ampliació capital subscrit` - (`Ampliació capital subscrit` - `Ampliació capital`))/(`Ampliació capital subscrit` - `Ampliació capital`))) %>%
+        mutate(`Evolució reducció` = 100*(((`Reducció capital resultant subscrit` + `Reducció capital import reducció`)-`Reducció capital resultant subscrit`)/(`Reducció capital resultant subscrit` + `Reducció capital import reducció`)))
       
+      `Evolució ampliació` <- na.omit(df$`Evolució ampliació`)
+      `Evolució reducció` <- na.omit(df$`Evolució reducció`)
+
       # Llamada a función para filtrado de atípicos
       df <- df %>%
         group_by(`Forma Jurídica`) %>% 
-        mutate(`Evolución ampliación` = detectar_atipicios(`Evolución ampliación`)) %>%
-        mutate(`Evolución reducción` = detectar_atipicios(`Evolución reducción`))
-      
+        mutate(`Evolució ampliació` = detectar_atipicios(`Evolució ampliació`)) %>%
+        mutate(`Evolució reducció` = detectar_atipicios(`Evolució reducció`))
+
       df3 <- df   # Data frame de referencia sin atípicos para el c'alculo de recuentos y medias
       
       # Cálculo medias de evolución y reducciones de capital
       df <- df3 %>%
         group_by(`Forma Jurídica`) %>%
         summarise(
-          `Media evolución ampliación` = round(mean(`Evolución ampliación`, na.rm = TRUE),2),
-          `Media evolución reducción` = round(mean(`Evolución reducción`, na.rm = TRUE),2)
+          `Mitjana evolució ampliació` = round(mean(`Evolució ampliació`, na.rm = TRUE),2),
+          `Mitjana evolució reducció` = round(mean(`Evolució reducció`, na.rm = TRUE),2)
         )
       
       #Generación DF
@@ -1270,16 +1341,16 @@ server <- function(input, output, session) {
       }
       
       #df <- df[,colSums(is.na(df))<nrow(df)]
-      rownames(df) <- c("Evolución ampliación (%)", "Evolución reducción (%)")
+      rownames(df) <- c("Evolució ampliació (%)", "Evolució reducció (%)")
       
       df$Total <- rowMeans(df, na.rm=TRUE)
       
       # Genearación df recuento ampliación
       df_recuento_ampliacion <- df3[,1:(ncol(df3)-1)]
-      df_recuento_ampliacion <- df_recuento_ampliacion[!is.na(df_recuento_ampliacion$`Evolución ampliación`),]
+      df_recuento_ampliacion <- df_recuento_ampliacion[!is.na(df_recuento_ampliacion$`Evolució ampliació`),]
       df_recuento_ampliacion <- df_recuento_ampliacion %>%
         group_by(`Forma Jurídica`) %>%
-        summarise(`Recuento ampliación` = n()
+        summarise(`Recuento ampliació` = n()
         )
       
       if(nrow(df_recuento_ampliacion) != 0){
@@ -1325,18 +1396,18 @@ server <- function(input, output, session) {
           }
         }
         
-        rownames(df_recuento_ampliacion) <- "Recuento ampliaciones"
+        rownames(df_recuento_ampliacion) <- "Recompte ampliacions"
         df_recuento_ampliacion$Total <- rowSums(df_recuento_ampliacion, na.rm=TRUE)
       }
-
-  
+      
+      
       
       # Genearación df recuento reducción
       df_recuento_reduccion <- df3[,c(1:(ncol(df3)-2),ncol(df3))]
-      df_recuento_reduccion <- df_recuento_reduccion[!is.na(df_recuento_reduccion$`Evolución reducción`),]
+      df_recuento_reduccion <- df_recuento_reduccion[!is.na(df_recuento_reduccion$`Evolució reducció`),]
       df_recuento_reduccion <- df_recuento_reduccion %>%
         group_by(`Forma Jurídica`) %>%
-        summarise(`Recuento reducción` = n()
+        summarise(`Recuento reducció` = n()
         )
       
       if(nrow(df_recuento_reduccion) != 0){
@@ -1390,11 +1461,11 @@ server <- function(input, output, session) {
       recuento_ref_ampl <- data.frame(rep(NA,ncol(df)),stringsAsFactors = FALSE)
       recuento_ref_ampl <- as.data.frame(t(recuento_ref_ampl))
       colnames(recuento_ref_ampl) <- colnames(df)
-      rownames(recuento_ref_ampl) <- "Recuento ampliaciones"
+      rownames(recuento_ref_ampl) <- "Recompte ampliacions"
       recuento_ref_reducc <- data.frame(rep(NA,ncol(df)),stringsAsFactors = FALSE)
       recuento_ref_reducc <- as.data.frame(t(recuento_ref_reducc))
       colnames(recuento_ref_reducc) <- colnames(df)
-      rownames(recuento_ref_reducc) <- "Recuento reducciones"
+      rownames(recuento_ref_reducc) <- "Recompte reducciones"
       
       
       # Generación data frame referencia recuento ampliaciones
@@ -1414,6 +1485,17 @@ server <- function(input, output, session) {
       }
       
       df <- rbind(recuento_ref_ampl,df[1,],recuento_ref_reducc,df[2,])
+      df[2,] <- round(df[2,],2)
+      df[4,] <- round(df[4,],2)
+      
+      return(df)
+      
+    })
+    
+    # 5.2) Tabla modificaciones de capital
+    output$tabla_borme_capital <- renderDataTable({
+      
+      df <- ayuda_borme_capital()
 
       #Límite visualización registros tabla
       tabla <- datatable(df, options = list(pageLength = 5,
@@ -1441,9 +1523,12 @@ server <- function(input, output, session) {
         
         shiny::validate(
           need(ncol(df) > 0,
-               "¡Aviso!\nNo hay datos suficientes como para generar el gráfico."
+               "¡Atenció!\nNo hay datos suficientes como para generar el gráfico."
           )
         )
+        
+        if(ncol(df) > 1){df <- df[ , colnames(df)[1:(ncol(df)-1)], drop = FALSE]}
+        
         
         # Definición de anchura de barra
         if(ncol(df) == 1){
@@ -1454,19 +1539,19 @@ server <- function(input, output, session) {
         
         df <- as.data.frame(t(df))
         if(ncol(df) == 1){
-          colnames(df) <- c("Recuento")
-          texto <- paste("Forma jurídica: ", df$`Forma jurídica`,"<br>Recuento: ",df$Recuento,sep = "")
+          colnames(df) <- c("Recompte")
+          texto <- paste("Forma jurídica: ", df$`Forma jurídica`,"<br>Recompte: ",df$Recompte,sep = "")
         }else{
-          colnames(df) <- c("Recuento","Representación")
-          texto <- paste("Forma jurídica: ", df$`Forma jurídica`,"<br>Recuento: ",df$Recuento, "<br>Representación (%): ",df$Representación,sep = "")
+          colnames(df) <- c("Recompte","Representació")
+          texto <- paste("Forma jurídica: ", df$`Forma jurídica`,"<br>Recompte: ",df$Recompte, "<br>Representació (%): ",df$Representació,sep = "")
         }
         df$`Forma jurídica` <- rownames(df)
         
-        g <- plot_ly(df, x = df$`Forma jurídica`, y = ~Recuento, type = 'bar', color = I("red"), width = ancho,
+        g <- plot_ly(df, x = df$`Forma jurídica`, y = ~Recompte, type = 'bar', color = I("red"), width = ancho,
                      text = texto,
                      hoverinfo = 'text')
         g <- g %>% layout(
-            title = list(text = paste('<b>Recuento por forma jurídica de ', input$Municipio_principal, '</b>',sep = ''), y = -0.1),
+            title = list(text = paste('<b>Recompte per forma jurídica ', input$Municipio_principal, '</b>',sep = ''), y = -0.1),
             xaxis = list(
                 title = "Forma jurídica")
         )
@@ -1478,21 +1563,30 @@ server <- function(input, output, session) {
     output$lineas_borme_eb2 <- renderPlotly({
 
       df <- datos_filtrados_borme()
+      
       # Manejo de error
       shiny::validate(
-        need(df != 0 & df != 1 & df != 2,
+        need(df != 0 & df != 1 & df != 2 & nrow(df) != 0,
              "")
       )
       
-      df$Mes <- paste(year(df$Fecha),"/",month(df$Fecha),sep = "")  #Extracción de meses
+      # Manejo de error
+      df2 <- estadistica_basica_2()
+      shiny::validate(
+        need(df2 != 0 & df2 != 1 & df2 != 2 & nrow(df2) != 0,
+             "")
+      )
+     
+      
+      df$Mes <- paste(year(df$Data),"/",month(df$Data),sep = "")  #Extracción de meses
 
       df <- recuento_estadistica_basica_2(df,1)  #Flag 1 para devolución recuento
 
       p <- df
-      p <- p %>% plot_ly(x = ~Mes, y = ~Recuento, fill= ~`Forma Jurídica`, color = ~`Forma Jurídica`)
+      p <- p %>% plot_ly(x = ~Mes, y = ~Recompte, fill= ~`Forma Jurídica`, color = ~`Forma Jurídica`)
       p <- p %>% add_trace(type = 'scatter', mode = 'lines+markers')
       p <- p %>% layout(
-        title = paste("<b>Recuento mensual ",input$Municipio_principal, " por forma jurídica</b>",sep = "")
+        title = paste("<b>Recompte mensual ",input$Municipio_principal, " per forma jurídica</b>",sep = "")
       )
 
       p
@@ -1521,40 +1615,48 @@ server <- function(input, output, session) {
       )
       
       # Paso a númerico capital
-      for(i in 2:5){
+      for(i in 2:7){
         df[,i] <- gsub("[a-z].","",df[,i])
         df[,i] <- gsub("[.]","",df[,i])
         df[,i] <- gsub("[.]","",df[,i])
         df[,i] <- as.numeric(gsub("[,]",".",df[,i]))
       }
       
+      #Incluir desembolsado (es la alternativa a capital, a veces aparece así)
+      for(i in 1:nrow(df)){
+        if(is.na(df$`Ampliació capital`[i])){
+          df$`Ampliació capital`[i] <- df$`Ampliació capital desemborsat`[i]
+          df$`Ampliació capital subscrit`[i] <- df$`Ampliació capital resultant desemborsat`[i]
+        }
+      }
+      
       # Cálculo evoluciones ampliaciones y reducciones de capital
       df <- df %>%
-        mutate(`Evolución ampliación` = 100*((`Ampliación capital suscrito` - `Ampliación capital`)/`Ampliación capital`)) %>%
-        mutate(`Evolución reducción` = 100*(`Reducción capital importe reducción`/(`Reducción capital resultante suscrito` + `Reducción capital importe reducción`)))
+        mutate(`Evolució ampliació` = 100*((`Ampliació capital subscrit` - (`Ampliació capital subscrit` - `Ampliació capital`))/(`Ampliació capital subscrit` - `Ampliació capital`))) %>%
+        mutate(`Evolució reducció` = 100*((`Reducció capital resultant subscrit` - `Reducció capital import reducció`)/(`Reducció capital resultant subscrit` - `Reducció capital import reducció`)))
       
-      `Evolución ampliación` <- na.omit(df$`Evolución ampliación`)
-      `Evolución reducción` <- na.omit(df$`Evolución reducción`)
+      `Evolució ampliació` <- na.omit(df$`Evolució ampliació`)
+      `Evolució reducció` <- na.omit(df$`Evolució reducció`)
       
-      df$Mes <- paste(year(df$Fecha),"/",month(df$Fecha),sep = "")  #Extracción de meses
-      df <- df[!is.na(df$`Evolución ampliación`) | !is.na(df$`Evolución reducción`),]
+      df$Mes <- paste(year(df$Data),"/",month(df$Data),sep = "")  #Extracción de meses
+      df <- df[!is.na(df$`Evolució ampliació`) | !is.na(df$`Evolució reducció`),]
       
       # Llamada a función para filtrado de atípicos
       df <- df %>%
         group_by(`Forma Jurídica`) %>% 
-        mutate(`Evolución ampliación` = detectar_atipicios(`Evolución ampliación`)) %>%
-        mutate(`Evolución reducción` = detectar_atipicios(`Evolución reducción`))
+        mutate(`Evolució ampliació` = detectar_atipicios(`Evolució ampliació`)) %>%
+        mutate(`Evolució reducció` = detectar_atipicios(`Evolució reducció`))
       
       # Cálculo medias de evolución y reducciones de capital
       df <- df %>%
         group_by(`Forma Jurídica`,Mes) %>%
         summarise(
-          `Media evolución ampliación` = round(mean(`Evolución ampliación`, na.rm = TRUE),0),
-          `Media evolución reducción` = round(mean(`Evolución reducción`, na.rm = TRUE),0)
+          `Mitjana evolució ampliació` = round(mean(`Evolució ampliació`, na.rm = TRUE),0),
+          `Mitjana evolució reducció` = round(mean(`Evolució reducció`, na.rm = TRUE),0)
         )
       
-      colnames(df)[3] <- "Evolución ampliación"
-      colnames(df)[4] <- "Evolución reducción"
+      colnames(df)[3] <- "Evolució ampliació"
+      colnames(df)[4] <- "Evolució reducció"
       
       return(df)
     })
@@ -1565,12 +1667,12 @@ server <- function(input, output, session) {
       df <- apoyo_graficos_capital()
       
       p <- df
-      p <- p %>% plot_ly(x = ~Mes, y = df$`Evolución ampliación`, fill= ~`Forma Jurídica`, color = ~`Forma Jurídica`)
+      p <- p %>% plot_ly(x = ~Mes, y = df$`Evolució ampliació`, fill= ~`Forma Jurídica`, color = ~`Forma Jurídica`)
       p <- p %>% add_trace(type = 'scatter', mode = 'lines+markers')
       p <- p %>% layout(
-        title = paste("<b>Evolución mensual ampliaciones de capital ",input$Municipio_principal, "</b>",sep = ""),
+        title = paste("<b>Evolució mensual ampliacions de capital ",input$Municipio_principal, "</b>",sep = ""),
         yaxis = list(
-          title = 'Evolución porcentual (%)'
+          title = 'Evolució porcentual (%)'
         )
       )
       
@@ -1583,12 +1685,12 @@ server <- function(input, output, session) {
       df <- apoyo_graficos_capital()
       
       p <- df
-      p <- p %>% plot_ly(x = ~Mes, y = df$`Evolución reducción`, fill= ~`Forma Jurídica`, color = ~`Forma Jurídica`)
+      p <- p %>% plot_ly(x = ~Mes, y = df$`Evolució reducció`, fill= ~`Forma Jurídica`, color = ~`Forma Jurídica`)
       p <- p %>% add_trace(type = 'scatter', mode = 'lines+markers')
       p <- p %>% layout(
-        title = paste("<b>Evolución mensual reducción de capital ",input$Municipio_principal, "</b>",sep = ""),
+        title = paste("<b>Evolució mensual reducció de capital ",input$Municipio_principal, "</b>",sep = ""),
         yaxis = list(
-          title = 'Evolución porcentual (%)'
+          title = 'Evolució porcentual (%)'
         )
       )
       
@@ -1606,22 +1708,22 @@ server <- function(input, output, session) {
       
       shiny::validate(
         need(nrow(na.omit(df_filtrados)) != 0,
-             "¡Aviso!\nNo existen datos disponibles para el valor de los filtros seleccionados.\nModifica el valor de los filtros si lo deseas."
+             "¡Atenció!\nNo existeixen dades disponibles per al valor dels filtres seleccionats.\nModifica el valor dels filtres si ho desitja."
         )
       )
       
       df_filtrados <- df_filtrados[df_filtrados$Latitud > 39 & df_filtrados$Latitud < 43,]
       
       if(input$variables_mapa == 1){
-        variable <- "Constitución objeto social"
+        variable <- "Constitució objecte social"
         pos <- 4
       }else{
-        variable <- "Cambio domicilio social"
+        variable <- "Canvi domicili social"
         pos <- 2
       }
       shiny::validate(
         need(any(grepl(variable,colnames(na.omit(df_filtrados)))) & nrow(na.omit(df_filtrados)) != 0,
-             "¡Aviso!\nNo existen datos disponibles para el valor de los filtros seleccionados.\nModifica el valor de los filtros si lo deseas."
+             "¡Atenció!\nNo existeixen dades disponibles per al valor dels filtres seleccionats.\nModifica el valor dels filtres si ho desitja."
         )
       )
       
@@ -1632,11 +1734,11 @@ server <- function(input, output, session) {
       }
       
       #Inicialización popup
-      empresas_popup <- df_filtrados$Empresa[!is.na(df_filtrados$Latitud)]
+      empresas_popup <- df_filtrados$`Denominació social`[!is.na(df_filtrados$Latitud)]
       domicilio_social_popup <- df_filtrados[,pos]
       domicilio_social_popup <- domicilio_social_popup[!is.na(df_filtrados$Latitud)]
-      popup <- paste("Empresa: ", empresas_popup, "<br/>",
-                     "Domicilio social: ", domicilio_social_popup, sep = "") %>% lapply(htmltools::HTML)
+      popup <- paste("Denominació social: ", empresas_popup, "<br/>",
+                     "Domicili social: ", domicilio_social_popup, sep = "") %>% lapply(htmltools::HTML)
 
       #Lat y long a numérico
       latitud <- as.numeric(df_filtrados$Latitud)
@@ -1660,16 +1762,16 @@ server <- function(input, output, session) {
             paste("Datos_borme_", as.character(input$fechas_listado_borme[1]),"_", as.character(input$fechas_listado_borme[2]),".csv", sep="")
         },
         content = function(file) {
-          if(input$tabs_borme == "Listado informativo"){
+          if(input$tabs_borme == "Llistat informatiu"){
             df_tabla <- manejo_tablas_borme()
             df <- df_tabla[,1:(ncol(df_tabla)-6)] #Evita la visualización de las variables lat,long,municipio y provincia.
-          }else if(input$tabs_borme == "Estadística básica 1"){
+          }else if(input$tabs_borme == "Estadística bàsica 1"){
             df <- estadistica_basica_1()
-          }else if(input$tabs_borme == "Estadística básica 2"){
+          }else if(input$tabs_borme == "Estadística bàsica 2"){
             df <- estadistica_basica_2()
             df <- recuento_estadistica_basica_2(df,2)  #Flag 2 para devolución con cálculos estadísticos
-          }else if(input$tabs_borme == "Modificaciones capital"){
-            df <- estadistica_basica_1()
+          }else if(input$tabs_borme == "Modificacions capital"){
+            df <- ayuda_borme_capital()
           }else{
             df_tabla <- manejo_tablas_borme()
             df <- df_tabla[,1:(ncol(df_tabla)-6)] #Evita la visualización de las variables lat,long,municipio y provincia.
@@ -1684,16 +1786,16 @@ server <- function(input, output, session) {
         filename = paste0("Datos_borme_",as.character(input$fechas_listado_borme[1]),"_", as.character(input$fechas_listado_borme[2]),".xlsx"),
         content  = function(file) {
           
-          if(input$tabs_borme == "Listado informativo"){
+          if(input$tabs_borme == "Llistat informatiu"){
             df_tabla <- manejo_tablas_borme()
             df <- df_tabla[,1:(ncol(df_tabla)-6)] #Evita la visualización de las variables lat,long,municipio y provincia.
-          }else if(input$tabs_borme == "Estadística básica 1"){
+          }else if(input$tabs_borme == "Estadística bàsica 1"){
             df <- estadistica_basica_1()
-          }else if(input$tabs_borme == "Estadística básica 2"){
+          }else if(input$tabs_borme == "Estadística bàsica 2"){
             df <- estadistica_basica_2()
             df <- recuento_estadistica_basica_2(df,2)  #Flag 2 para devolución con cálculos estadísticos
-          }else if(input$tabs_borme == "Modificaciones capital"){
-            df <- estadistica_basica_1()
+          }else if(input$tabs_borme == "Modificacions capital"){
+            df <- ayuda_borme_capital()
           }else{
             df_tabla <- manejo_tablas_borme()
             df <- df_tabla[,1:(ncol(df_tabla)-6)] #Evita la visualización de las variables lat,long,municipio y provincia.
@@ -1711,24 +1813,24 @@ server <- function(input, output, session) {
     #============================
     
     output$texto_tabla_borme_listado <- renderUI(
-      tags$div(id = "1",tags$h4(tags$b(paste("Listado informativo ", input$Municipio_principal, sep = ""))))
+      tags$div(id = "1",tags$h4(tags$b(paste("Llistat informatiu ", input$Municipio_principal, sep = ""))))
     )
     output$texto_tabla_borme_eb1 <- renderUI(
-      tags$div(id = "1",tags$h4(tags$b(paste("Recuento ", input$Municipio_principal, " y comparativa respecto ",
+      tags$div(id = "1",tags$h4(tags$b(paste("Recompte ", input$Municipio_principal, " i comparativa respecte ",
                                              ifelse(input$comparaciones == "Un altre municipi",input$Municipio_comparaciones, input$comparaciones)
                                              , sep = ""))))
     )
     output$texto_tabla_borme_eb2 <- renderUI(
-      tags$div(id = "1",tags$h4(tags$b(paste("Estadísticas descriptivas ", input$Municipio_principal, sep = ""))))
+      tags$div(id = "1",tags$h4(tags$b(paste("Estadística descriptiva mensual ", input$Municipio_principal, sep = ""))))
     )
     output$texto_tabla_borme_capital <- renderUI(
-      tags$div(id = "1",tags$h4(tags$b(paste("Media de evoluciones modificaciones de capital ", input$Municipio_principal, sep = ""))))
+      tags$div(id = "1",tags$h4(tags$b(paste("Mitjana de evoluciones modificacions de capital ", input$Municipio_principal, sep = ""))))
     )
     output$texto_borme_mapa <- renderUI(
-      tags$div(id = "1",tags$h4(tags$b(paste("Información geolocalizada ", ifelse(input$variables_mapa == 1,"Constituciones ", "Cambios de domicilio social "), input$Municipio_principal,sep = ""))))
+      tags$div(id = "1",tags$h4(tags$b(paste("Informació geolocalitzada ", ifelse(input$variables_mapa == 1,"Constitucions ", "Canvis de domicili social "), input$Municipio_principal,sep = ""))))
     )
     output$texto_tabla_borme_mapa <- renderUI(
-      tags$div(id = "1",tags$h4(tags$b(paste("Listado informativo ", ifelse(input$variables_mapa == 1,"Constituciones ", "Cambios de domicilio social "), input$Municipio_principal,sep = ""))))
+      tags$div(id = "1",tags$h4(tags$b(paste("Llistat informatiu ", ifelse(input$variables_mapa == 1,"Constitucions ", "Canvis de domicili social "), input$Municipio_principal,sep = ""))))
     )
     
   
@@ -1891,7 +1993,7 @@ server <- function(input, output, session) {
       
       # Manejo de error
       shiny::validate(
-        need(df != 0, "¡Aviso!\nNo existen datos disponibles para los filtros seleccionados.\nModifica los filtros si lo deseas.")
+        need(df != 0, "¡Atenció!\nNo existen datos disponibles para los filtros seleccionados.\nModifica los filtros si lo deseas.")
       )
       
       df <- func_recuento_econom(df,2) #Flag 0 para devolución recuento
@@ -1912,9 +2014,9 @@ server <- function(input, output, session) {
       df$latitud <- municipios_ertes$lat[match(df$M, municipios_ertes$M)]
       df$longitud <- municipios_ertes$lon[match(df$M, municipios_ertes$M)]
       
-      if(any(grepl("Todos",input$variables_ertes_sec_ecc))){
+      if(any(grepl("Tots",input$variables_ertes_sec_ecc))){
         secciones <- input$variables_ertes_sec_ecc[1:(length(input$variables_ertes_sec_ecc)-1)]
-      }else if(any(grepl("Ninguno",input$variables_ertes_sec_ecc))){
+      }else if(any(grepl("Cap",input$variables_ertes_sec_ecc))){
         secciones <- NULL
       }else if(any(grepl("Top 3",input$variables_ertes_sec_ecc))){
         secciones_economicas <- c("A. Agricultura, ramaderia i pesca","B. Indústries extractives", "C. Indústries manufactureres",               
@@ -1941,7 +2043,7 @@ server <- function(input, output, session) {
           longitud <- c(longitud, rep(df2$longitud[i],(ncol(df2)-3)))
         }
         df2 <- data.frame(Municipio,seccion_economica,recuento,latitud,longitud,stringsAsFactors = FALSE)
-        colnames(df2) <- c("Territorio","Sección económica","Recuento","Latitud","Longitud")
+        colnames(df2) <- c("Territori","Secció econòmica","Recompte","Latitud","Longitud")
 
         #Orden decreciente para visualizar los labels superpuestos en el mapa. Se ordena en base al territorio y al recuento
         a <- as.numeric(order(as.data.frame(df2[,1]),as.data.frame(df2[,3]),decreasing = TRUE))
@@ -1949,11 +2051,11 @@ server <- function(input, output, session) {
         
         # Cálculo df3 para el cálculo de top 3 secciones económicas
         df3 <- df2 %>%
-          group_by(`Sección económica`) %>%
-          summarise(suma = sum(Recuento))
+          group_by(`Secció econòmica`) %>%
+          summarise(suma = sum(Recompte))
         df3 <- df3[order(df3$suma,decreasing = TRUE),]
         
-        secciones <- df3$`Sección económica`[1:3]
+        secciones <- df3$`Secció econòmica`[1:3]
       }else{
         secciones <- input$variables_ertes_sec_ecc
       }
@@ -1962,7 +2064,7 @@ server <- function(input, output, session) {
       
       # Manejo de error: "inexistencia de datos para el intervalo de fechas seleccionado" de cara al usuario
       shiny::validate(
-        need(ncol(df) > 3, "¡Aviso!\nNo existen datos disponibles para los filtros seleccionados.\nModifica los filtros si lo deseas.")
+        need(ncol(df) > 3, "¡Atenció!\nNo existen datos disponibles para los filtros seleccionados.\nModifica los filtros si lo deseas.")
       )
       
       return(df)
@@ -1979,15 +2081,15 @@ server <- function(input, output, session) {
       df$fecha <- paste(year(df$fecha),"/",month(df$fecha),sep = "")  #Extracción de meses
       
       # Cálculo suma
-      colnames(df) <- c("Territorio","2","3","4","AMB","Fecha")
+      colnames(df) <- c("Territori","2","3","4","AMB","Fecha")
       
       if(flag_evol == 1){
         #Recuento por mes y forma jurídica
         df <- df %>%
           group_by(Fecha) %>%
           summarise(
-            `Suma Fuerza Mayor` = sum(as.numeric(`2`),na.rm = TRUE),
-            `Suma causas` = sum(as.numeric(`3`),na.rm = TRUE),
+            `Suma Força mayor` = sum(as.numeric(`2`),na.rm = TRUE),
+            `Suma causes` = sum(as.numeric(`3`),na.rm = TRUE),
             `Suma Total` = sum(as.numeric(`4`),na.rm = TRUE)
             )
         
@@ -2000,10 +2102,10 @@ server <- function(input, output, session) {
       fuerza_mayor <- sum(df$`2`,na.rm = TRUE)
       causas <- sum(df$`3`,na.rm = TRUE)
       total <- sum(df$`4`,na.rm = TRUE)
-      Territorio <- input$Municipio_principal_ertes
-      df <- data.frame(Territorio,fuerza_mayor,causas,total,stringsAsFactors = FALSE)
+      Territori <- input$Municipio_principal_ertes
+      df <- data.frame(Territori,fuerza_mayor,causas,total,stringsAsFactors = FALSE)
 
-      colnames(df) <- c("Territorio","Fuerza mayor","causas","Total")
+      colnames(df) <- c("Territori","Força mayor","Causes","Total")
       
       return(df)
     }
@@ -2037,7 +2139,7 @@ server <- function(input, output, session) {
       df2 <- as.data.frame(colSums(df[,4:26],na.rm = TRUE),row.names = NULL)
       df2 <- as.data.frame(t(df2),row.names = NULL)
       colnames(df2) <- colnames(df)[4:26]
-      df2$Territorio <- input$Municipio_principal_ertes
+      df2$Territori <- input$Municipio_principal_ertes
       df2 <- df2[,c(ncol(df2),1:(ncol(df2)-1))]
 
       return(df2)
@@ -2056,7 +2158,7 @@ server <- function(input, output, session) {
       
       # Manejo de error
       shiny::validate(
-        need(df != 0, "¡Aviso!\nNo existen datos disponibles para el intervalo de fechas seleccionado.\nSelecciona otro intervalo si lo deseas.")
+        need(df != 0, "¡Atenció!\nNo existeixen dades disponibles per a l'interval de dates seleccionat.\nSelecciona un altre interval si ho desitja.")
       )
       
       df <- func_recuento_tipos(df,0) 
@@ -2081,15 +2183,15 @@ server <- function(input, output, session) {
       )
       
       # Cálculo suma
-      colnames(df) <- c("Territorio","2","3","4","AMB","Fecha")
+      colnames(df) <- c("Territori","2","3","4","AMB","Fecha")
       
       fuerza_mayor <- round(mean(as.numeric(df$`2`),na.rm = TRUE),0)
       causas <- round(mean(as.numeric(df$`3`),na.rm = TRUE),0)
       total <- round(mean(as.numeric(df$`4`),na.rm = TRUE),0)
-      Territorio <- input$Municipio_principal_ertes
-      df <- data.frame(Territorio,fuerza_mayor,causas,total,stringsAsFactors = FALSE)
+      Territori <- input$Municipio_principal_ertes
+      df <- data.frame(Territori,fuerza_mayor,causas,total,stringsAsFactors = FALSE)
       
-      colnames(df) <- c("Territorio","Fuerza mayor","causas","Total")
+      colnames(df) <- c("Territori","Força mayor","Causes","Total")
       
       tabla <- datatable(df, options = list(pageLength = 5,
                                             columnDefs = list(list(className = 'dt-center', targets = "_all")),
@@ -2107,7 +2209,7 @@ server <- function(input, output, session) {
       
       # Manejo de error
       shiny::validate(
-        need(df != 0, "¡Aviso!\nNo existen datos disponibles para el intervalo de fechas seleccionado.\nSelecciona otro intervalo si lo deseas.")
+        need(df != 0, "¡Atenció!\nNo existeixen dades disponibles per a l'interval de dates seleccionat.\nSelecciona un altre interval si ho desitja.")
       )
       
       df <- func_recuento_econom(df,0) 
@@ -2158,8 +2260,8 @@ server <- function(input, output, session) {
       fecha <- c()
       recuento <- c()
       for(i in 1:nrow(df)){
-        tipo <- c(tipo,"Fuerza Mayor")
-        tipo <- c(tipo,"Causas")
+        tipo <- c(tipo,"Força mayor")
+        tipo <- c(tipo,"Causes")
         tipo <- c(tipo,"Total")
         
         fecha <- c(fecha, rep(df$Fecha[i]))
@@ -2168,13 +2270,13 @@ server <- function(input, output, session) {
         recuento <- c(recuento, as.numeric(df[i,4]))
       }
       df <- data.frame(tipo,fecha,recuento,stringsAsFactors = FALSE)
-      colnames(df) <- c("Tipo","Mes","Recuento")
+      colnames(df) <- c("Tipo","Mes","Recompte")
 
       p <- df
-      p <- p %>% plot_ly(x = ~Mes, y = ~Recuento, fill= ~Tipo, color = ~Tipo)
+      p <- p %>% plot_ly(x = ~Mes, y = ~Recompte, fill= ~Tipo, color = ~Tipo)
       p <- p %>% add_trace(type = 'scatter', mode = 'lines+markers')
       p <- p %>% layout(
-        title = list(text = paste('<b>Evolución mensual ', ifelse(input$variables_ertes == 1, "Expedientes", "Treballadores"), " ", input$Municipio_principal_ertes, '</b>',sep = ''), y = -0.1)
+        title = list(text = paste('<b>Evolució mensual ', ifelse(input$variables_ertes == 1, "Expedients", "Treballadors"), " ", input$Municipio_principal_ertes, '</b>',sep = ''), y = -0.1)
       )
       
       p
@@ -2204,19 +2306,19 @@ server <- function(input, output, session) {
         recuento <- c(recuento, as.numeric(df[i,1:ncol(df)]))
       }
       df <- data.frame(seccion_economica,recuento,stringsAsFactors = FALSE)
-      colnames(df) <- c("Sección económica", "Recuento")
+      colnames(df) <- c("Secció econòmica", "Recompte")
       
-      df$`Sección económica` <- factor(df$`Sección económica`, levels = c(as.character(df$`Sección económica`)))
+      df$`Secció econòmica` <- factor(df$`Secció econòmica`, levels = c(as.character(df$`Secció econòmica`)))
       
-      variable_expediente <- ifelse(input$variables_ertes == 1, "Expedientes", "Treballadores")
+      variable_expediente <- ifelse(input$variables_ertes == 1, "Expedients", "Treballadors")
       
-      g <- plot_ly(df, x = df$`Sección económica`, y = ~Recuento, type = 'bar', colors = 'red',
-                   text = paste("Sección económica: ", df$`Sección económica`,"<br>Recuento: ",df$Recuento,sep = ""),
+      g <- plot_ly(df, x = df$`Secció econòmica`, y = ~Recompte, type = 'bar', colors = 'red',
+                   text = paste("Secció econòmica: ", df$`Secció econòmica`,"<br>Recompte: ",df$Recompte,sep = ""),
                    hoverinfo = 'text')
       g <- g %>% layout(
-        title = list(text = paste('<b>Top 5 secciones económicas ', ifelse(input$variables_ertes == 1, "Expedientes", "Treballadores")," ", input$Municipio_principal_ertes, '</b>',sep = ''), y = -0.1),
+        title = list(text = paste('<b>Top 5 seccions econòmiques ', ifelse(input$variables_ertes == 1, "Expedients", "Treballadors")," ", input$Municipio_principal_ertes, '</b>',sep = ''), y = -0.1),
         xaxis = list(
-          title = "Sección económica")
+          title = "Secció econòmica")
       )
       
       g
@@ -2245,15 +2347,15 @@ server <- function(input, output, session) {
         recuento <- c(recuento, as.numeric(df[i,2:ncol(df)]))
       }
       df <- data.frame(tipo,fecha,recuento,stringsAsFactors = FALSE)
-      colnames(df) <- c("Tipo","Mes","Recuento")
+      colnames(df) <- c("Tipo","Mes","Recompte")
       
       p <- df
-      p <- p %>% plot_ly(x = ~Mes, y = ~Recuento, fill= ~Tipo, color = ~Tipo)
+      p <- p %>% plot_ly(x = ~Mes, y = ~Recompte, fill= ~Tipo, color = ~Tipo)
       p <- p %>% add_trace(type = 'scatter', mode = 'lines+markers')
       p <- p %>% layout(
-        title = list(text = paste('<b>Evolución mensual ', ifelse(input$variables_ertes == 1, "Expedientes", "Treballadores")," ", input$Municipio_principal_ertes, '</b>',sep = ''), y = -0.1),
+        title = list(text = paste('<b>Evolució mensual ', ifelse(input$variables_ertes == 1, "Expedients", "Treballadors")," ", input$Municipio_principal_ertes, '</b>',sep = ''), y = -0.1),
         xaxis = list(
-          title = "Sección económica")
+          title = "Secció econòmica")
       )
       
       p
@@ -2282,28 +2384,30 @@ server <- function(input, output, session) {
         longitud <- c(longitud, rep(df$longitud[i],(ncol(df)-3)))
       }
       df <- data.frame(Municipio,seccion_economica,recuento,latitud,longitud,stringsAsFactors = FALSE)
-      colnames(df) <- c("Territorio","Sección económica","Recuento","Latitud","Longitud")
+      colnames(df) <- c("Territori","Secció econòmica","Recompte","Latitud","Longitud")
       
       #Orden decreciente para visualizar los labels superpuestos en el mapa. Se ordena en base al territorio y al recuento
       a <- as.numeric(order(as.data.frame(df[,1]),as.data.frame(df[,3]),decreasing = TRUE))
       df <- df[a,]
       
-      label <- paste("Territorio: ", df$Territorio, "<br/>",
-                     "Sección económica: ", df$`Sección económica`, "<br/>",
-                     "Recuento: ", df$Recuento, sep = "") %>% lapply(htmltools::HTML)
+      label <- paste("Territori: ", df$Territori, "<br/>",
+                     "Secció econòmica: ", df$`Secció econòmica`, "<br/>",
+                     "Recompte: ", df$Recompte, sep = "") %>% lapply(htmltools::HTML)
       
       
-      if(max(round(df$Recuento)) < 1000){
-        radios <-round(df$Recuento) * 3
+      if(max(round(df$Recompte)) < 1000){
+        radios <-round(df$Recompte) * 3
+      }else if(max(round(df$Recompte)) > 10000){
+        radios <- rescale(round(df$Recompte), to = c(0.1, 1)) * 3000
       }else{
-        radios <-round(df$Recuento)
+        radios <-round(df$Recompte)
       }
       
       pal <- colorFactor(palette = 'Set1', domain = df$gran_grup_CCO)
       
       leaflet() %>% addProviderTiles(providers$CartoDB.Positron) %>% addCircles(data=df,lng=as.numeric(df$Longitud), lat=as.numeric(df$Latitud), weight = 2,
-                                                                                label= label, radius=radios, color = ~pal(`Sección económica`)) %>% 
-        addLegend(position = "bottomright", pal = pal, values = df$`Sección económica`)
+                                                                                label= label, radius=radios, color = ~pal(`Secció econòmica`)) %>% 
+        addLegend(position = "bottomright", pal = pal, values = df$`Secció econòmica`)
     })
     
     #==========================================================================
@@ -2317,10 +2421,10 @@ server <- function(input, output, session) {
         paste("Datos_ERTES_", as.character(input$fechas_listado_ertes[1]),"_", as.character(input$fechas_listado_ertes[2]),".csv", sep="")
       },
       content = function(file) {
-        if(input$tabs_borme == "Expedientes por tipo"){
+        if(input$tabs_borme == "Expedients per tipo"){
           df <- datos_filtrados_ertes_expedientes() 
           df <- func_recuento_tipos(df,0)
-        }else if(input$tabs_borme == "Expedientes por sección económica"){
+        }else if(input$tabs_borme == "Expedients per secció econòmica"){
           df <- datos_filtrados_ertes_econom() 
           df <- func_recuento_econom(df,0)
         }else{
@@ -2337,10 +2441,10 @@ server <- function(input, output, session) {
       
       filename = paste0("Datos_ERTES_",as.character(input$fechas_listado_ertes[1]),"_", as.character(input$fechas_listado_ertes[2]),".xlsx", sep=""),
       content  = function(file) {
-        if(input$tabs_borme == "Expedientes por tipo"){
+        if(input$tabs_borme == "Expedients per tipo"){
           df <- datos_filtrados_ertes_expedientes() 
           df <- func_recuento_tipos(df,0)
-        }else if(input$tabs_borme == "Expedientes por sección económica"){
+        }else if(input$tabs_borme == "Expedients per secció econòmica"){
           df <- datos_filtrados_ertes_econom() 
           df <- func_recuento_econom(df,0)
         }else{
@@ -2360,25 +2464,25 @@ server <- function(input, output, session) {
     #============================
     
     output$texto_tabla_ertes_expedientes_recuento <- renderUI(
-      tags$div(id = "1",tags$h4(tags$b(paste("Recuento ", ifelse(input$variables_ertes == 1, "Expedientes", "Treballadores"),
-                                             " por tipo de expediente ", input$Municipio_principal_ertes, sep = ""))))
+      tags$div(id = "1",tags$h4(tags$b(paste("Recompte ", ifelse(input$variables_ertes == 1, "Expedients", "Treballadors"),
+                                             " per tipus d'expedient ", input$Municipio_principal_ertes, sep = ""))))
     )
     output$texto_tabla_ertes_media <- renderUI(
-      tags$div(id = "1",tags$h4(tags$b(paste("Media ", ifelse(input$variables_ertes == 1, "Expedientes", "Treballadores"),
-                                             " por tipo de expediente ", input$Municipio_principal_ertes,sep = ""))))
+      tags$div(id = "1",tags$h4(tags$b(paste("Mitjana ", ifelse(input$variables_ertes == 1, "Expedients", "Treballadors"),
+                                             " per tipus d'expedient ", input$Municipio_principal_ertes,sep = ""))))
     )
     output$texto_tabla_ertes_secc_recuento <- renderUI(
-      tags$div(id = "1",tags$h4(tags$b(paste("Recuento ", ifelse(input$variables_ertes == 1, "Expedientes", "Treballadores"),
-                                             " por sección económica ", input$Municipio_principal_ertes,sep = ""))))
+      tags$div(id = "1",tags$h4(tags$b(paste("Recompte ", ifelse(input$variables_ertes == 1, "Expedients", "Treballadors"),
+                                             " per secció econòmica ", input$Municipio_principal_ertes,sep = ""))))
     )
     output$texto_tabla_ertes_mapa <- renderUI(
-      tags$div(id = "1",tags$h4(tags$b(paste("Recuento ", ifelse(input$variables_ertes == 1, "Expedientes", "Treballadores"),
-                                             " por sección económica y territorio ", input$Municipio_principal_ertes, sep = ""))))
+      tags$div(id = "1",tags$h4(tags$b(paste("Recompte ", ifelse(input$variables_ertes == 1, "Expedients", "Treballadors"),
+                                             " per secció econòmica i territori ", input$Municipio_principal_ertes, sep = ""))))
     )
     
     output$texto_ertes_mapa <- renderUI(
-      tags$div(id = "1",tags$h4(tags$b(paste("Recuento ", ifelse(input$variables_ertes == 1, "Expedientes", "Treballadores"),
-                                             " por sección económica y territorio ", input$Municipio_principal_ertes, sep = ""))))
+      tags$div(id = "1",tags$h4(tags$b(paste("Recompte ", ifelse(input$variables_ertes == 1, "Expedients", "Treballadors"),
+                                             " per secció econòmica i territori ", input$Municipio_principal_ertes, sep = ""))))
     )
 
 }
