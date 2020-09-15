@@ -34,7 +34,7 @@ library(shinyalert)
 library(rmarkdown)
 library(tinytex)
 library(lubridate)
-library(shinybusy)
+#library(shinybusy)
 
 
 #Scripts R apoyo externos
@@ -521,9 +521,9 @@ server <- function(input, output, session) {
     observeEvent(input$fechas_listado_borme, {
       print("Entro fechas")
       #show_spinner() # show the spinner
-      show_modal_spinner() # show the modal window
+      #show_modal_spinner() # show the modal window
       datos$borme = llamada_api(as.character(input$fechas_listado_borme[1]), as.character(input$fechas_listado_borme[2]))
-      remove_modal_spinner() # remove it when done
+      #remove_modal_spinner() # remove it when done
       #hide_spinner() # hide the spinner
       print("LLEGO 1")
     })
