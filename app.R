@@ -547,29 +547,6 @@ server <- function(input, output, session) {
 
 
     #==========================================================================
-    # FUNCIONES DE APOYO
-    #==========================================================================
-
-    #Obtención coordenadas municipio referencia
-    coordenadas_municipio <- reactive({
-
-        df_atributos <- atributos_Borme()
-        municipio_ref <- df_atributos$value[df_atributos$key == "Municipio"]
-
-        #Coordenadas de referencia del municipio con geocoder API
-        #Endpoint geocoder API
-        geocoder_endpoint <- "https://geocoder.api.here.com/6.2/geocode.json?app_id=HRwFz9rfbtRq63qGH4ZQ&app_code=aMRd84WGRs4h1591F-g82w&searchtext="
-
-        coordenadas_ref_municipio <- jsonlite::fromJSON(paste(geocoder_endpoint, URLencode(municipio_ref),"%20(Espa%C3%B1a)",sep = ""))
-        coordenadas_ref_municipio <- coordenadas_ref_municipio$Response$View$Result %>% as.data.frame()
-        longitud_ref_municipio <- coordenadas_ref_municipio$Location$DisplayPosition$Longitude
-        latitud_ref_municipio <- coordenadas_ref_municipio$Location$DisplayPosition$Latitude
-        coor_referencia <- c(longitud_ref_municipio, latitud_ref_municipio)
-
-        return(coor_referencia)
-    })
-
-    #==========================================================================
     # LLAMADAS API THINGSBOARD
     #==========================================================================
 
@@ -1078,7 +1055,7 @@ server <- function(input, output, session) {
         # Cálculo representación
         for(i in 1:ncol(df_ref)){
           if(any(colnames(df_comparativa) %in% colnames(df_ref)[i])){
-            df_representacion[,i] <- round(100*(df_ref[,i]/df_comparativa[,which(colnames(df_comparativa) %in% colnames(df_ref)[i])]),2)
+          df_representacion[,i] <- round(100*(df_ref[,i]/df_comparativa[,which(colnames(df_comparativa) %in% colnames(df_ref)[i])]),2)
           }
         }
         
@@ -1088,7 +1065,7 @@ server <- function(input, output, session) {
           rownames(df) <- c("Mitjana", "Máxim", "Mínim", "Desviació tipus", "Percentil 25", "Percentil 75")
         }else{
           rownames(df) <- c("Mitjana", "Máxim", "Mínim", "Desviació tipus", "Percentil 25", "Percentil 75",
-                            "Comparació Mitjana (%)", "Comparació Máxim (%)", "Comparació Mínim (%)", "Comparació Desviació tipus (%)", "Comparació Percentil 25 (%)", "Comparació Percentil 75 (%)")
+                            "Representación Mitjana (%)", "Representación Máxim (%)", "Representación Mínim (%)", "Representación Desviació tipus (%)", "Representación Percentil 25 (%)", "Representación Percentil 75 (%)")
         }
       }
       
@@ -1139,6 +1116,8 @@ server <- function(input, output, session) {
         )
         
         df_tabla <- df_tabla[,1:(ncol(df_tabla)-6)] #Evita la visualización de las variables lat,long,municipio y provincia.
+        
+
 
         # Manejo de error: "inexistencia de datos para los filtros seleccionados" de cara al usuario
         shiny::validate(
@@ -1712,7 +1691,8 @@ server <- function(input, output, session) {
         )
       )
       
-      df_filtrados <- df_filtrados[df_filtrados$Latitud > 39 & df_filtrados$Latitud < 43,]
+      #df_filtrados <- df_filtrados[df_filtrados$Latitud > 39 & df_filtrados$Latitud < 43,]
+      df_filtrados <- df_filtrados[df_filtrados$Latitud > 36 & df_filtrados$Latitud < 44,]
       
       if(input$variables_mapa == 1){
         variable <- "Constitució objecte social"
@@ -1773,8 +1753,7 @@ server <- function(input, output, session) {
           }else if(input$tabs_borme == "Modificacions capital"){
             df <- ayuda_borme_capital()
           }else{
-            df_tabla <- manejo_tablas_borme()
-            df <- df_tabla[,1:(ncol(df_tabla)-6)] #Evita la visualización de las variables lat,long,municipio y provincia.
+            df <- datos_filtrados_borme() 
           }
           write.csv(df, file, eol="\n", sep = ",")  # eol="\n" es para el encoding de caracteres en .csv
         }
@@ -1797,8 +1776,7 @@ server <- function(input, output, session) {
           }else if(input$tabs_borme == "Modificacions capital"){
             df <- ayuda_borme_capital()
           }else{
-            df_tabla <- manejo_tablas_borme()
-            df <- df_tabla[,1:(ncol(df_tabla)-6)] #Evita la visualización de las variables lat,long,municipio y provincia.
+            df <- datos_filtrados_borme() #Evita la visualización de las variables lat,long,municipio y provincia.
           }
           
           wb <- createWorkbook()
