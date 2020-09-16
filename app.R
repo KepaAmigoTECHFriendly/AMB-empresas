@@ -363,7 +363,7 @@ ui <- fluidPage(style = "width: 100%; height: 100%;",
                                     )
                            ),
                            
-                           tabPanel("ERTES",
+                           tabPanel("ERTOS",
                                     sidebarLayout(
                                       # Menú de datos
                                       sidebarPanel(
@@ -371,7 +371,7 @@ ui <- fluidPage(style = "width: 100%; height: 100%;",
                                                     c(as.character(mun),"AMB", "AMB sense Barcelona ciutat", "Barcelona ciutat", "Barcelona provincia", "Catalunya")
                                         ),
                                         
-                                        dateRangeInput("fechas_listado_ertes","Seleccioneu l'interval de dates",start = "2020-08-01", end = Sys.Date()),
+                                        dateRangeInput("fechas_listado_ertes","Seleccioneu l'interval de dates",start = "2020-07-01", end = Sys.Date()),
                                         
                                         radioButtons("variables_ertes", "Selecció variable",
                                                      c("Expedients" = 1,
@@ -2396,7 +2396,7 @@ server <- function(input, output, session) {
     output$descarga_ertes_csv <- downloadHandler(
       
       filename = function() {
-        paste("Datos_ERTES_", as.character(input$fechas_listado_ertes[1]),"_", as.character(input$fechas_listado_ertes[2]),".csv", sep="")
+        paste("Datos_ERTOS_", as.character(input$fechas_listado_ertes[1]),"_", as.character(input$fechas_listado_ertes[2]),".csv", sep="")
       },
       content = function(file) {
         if(input$tabs_borme == "Expedients per tipo"){
@@ -2417,7 +2417,7 @@ server <- function(input, output, session) {
     #Descarga contratos en XLSX
     output$descarga_ertes_xlsx <- downloadHandler(
       
-      filename = paste0("Datos_ERTES_",as.character(input$fechas_listado_ertes[1]),"_", as.character(input$fechas_listado_ertes[2]),".xlsx", sep=""),
+      filename = paste0("Datos_ERTOS_",as.character(input$fechas_listado_ertes[1]),"_", as.character(input$fechas_listado_ertes[2]),".xlsx", sep=""),
       content  = function(file) {
         if(input$tabs_borme == "Expedients per tipo"){
           df <- datos_filtrados_ertes_expedientes() 
