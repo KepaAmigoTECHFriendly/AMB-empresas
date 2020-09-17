@@ -527,33 +527,42 @@ server <- function(input, output, session) {
       fecha_inicial <- input$fechas_listado_borme[1]
       fecha_final <- input$fechas_listado_borme[2]
       
-      num_meses <- floor(12*as.double(difftime(fecha_final,fecha_inicial))/365)
-      num_meses <- ifelse(num_meses == 0,1,num_meses)
-      
-      #datos$borme = llamada_api(as.character(input$fechas_listado_borme[1]), as.character(input$fechas_listado_borme[2]))
-      fecha_ini_consulta <- fecha_inicial
-      fecha_fin_consulta <- fecha_final
-      progress <- Progress$new(session)
-      long <- 1:num_meses
-      avance_barra <- rescale(long,c(0.2,1.0))
-      df <- data.frame(NULL)
-      for(i in long){
-        progress$set(value = avance_barra[i], message = 'Cargando datos...')
-        if(i == 1){
-          month(fecha_ini_consulta) <- month(fecha_fin_consulta)-1
-        }else if(i == num_meses){
-          fecha_fin_consulta <- fecha_ini_consulta-1
-          fecha_ini_consulta <- fecha_inicial
-          
-        }else{
-          fecha_fin_consulta <- fecha_ini_consulta-1
-          month(fecha_ini_consulta) <- month(fecha_ini_consulta)-1
+      if(fecha_final - fecha_inicial < 32){
+        progress <- Progress$new(session)
+        progress$set(value = 0.5, message = 'Cargando datos...')
+        datos$borme = llamada_api(as.character(input$fechas_listado_borme[1]), as.character(input$fechas_listado_borme[2]))
+        progress$close()
+      }else{
+        num_meses <- floor(12*as.double(difftime(fecha_final,fecha_inicial))/365)
+        num_meses <- ifelse(num_meses == 0,1,num_meses)
+        
+        #datos$borme = llamada_api(as.character(input$fechas_listado_borme[1]), as.character(input$fechas_listado_borme[2]))
+        fecha_ini_consulta <- fecha_inicial
+        fecha_fin_consulta <- fecha_final
+        progress <- Progress$new(session)
+        long <- 1:num_meses
+        avance_barra <- rescale(long,c(0.2,1.0))
+        df <- data.frame(NULL)
+        for(i in long){
+          progress$set(value = avance_barra[i], message = 'Cargando datos...')
+          if(i == 1){
+            month(fecha_ini_consulta) <- month(fecha_fin_consulta)-1
+          }else if(i == num_meses){
+            fecha_fin_consulta <- fecha_ini_consulta-1
+            fecha_ini_consulta <- fecha_inicial
+            
+          }else{
+            fecha_fin_consulta <- fecha_ini_consulta-1
+            month(fecha_ini_consulta) <- month(fecha_ini_consulta)-1
+          }
+          df_mes <- llamada_api(as.character(fecha_ini_consulta), as.character(fecha_fin_consulta))
+          df <- rbind(df,df_mes)
         }
-        df_mes <- llamada_api(as.character(fecha_ini_consulta), as.character(fecha_fin_consulta))
-        df <- rbind(df,df_mes)
+        datos$borme = df
+        progress$close()
       }
-      datos$borme = df
-      progress$close()
+      
+      
       
       #remove_modal_spinner() # remove it when done
       #hide_spinner() # hide the spinner
