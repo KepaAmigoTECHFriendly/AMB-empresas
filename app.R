@@ -28,7 +28,6 @@ library(reshape2)
 library(hrbrthemes)
 library(ggthemes)
 library(plotly)
-library(webshot2)
 library(htmlwidgets)
 library(shinyalert)
 library(rmarkdown)
@@ -39,6 +38,27 @@ library(shinybusy)
 
 #Scripts R apoyo externos
 source("llamada_api_thb_borme.R")
+
+
+inactivity <- "function idleTimer() {
+  var t = setTimeout(logout, 500000);
+  window.onmousemove = resetTimer; // catches mouse movements
+  window.onmousedown = resetTimer; // catches mouse movements
+  window.onclick = resetTimer;     // catches mouse clicks
+  window.onscroll = resetTimer;    // catches scrolling
+  window.onkeypress = resetTimer;  //catches keyboard actions
+
+  function logout() {
+    window.close();  //close the window
+  }
+
+  function resetTimer() {
+    clearTimeout(t);
+    t = setTimeout(logout, 500000);  // time is in milliseconds (1000 is 1 second)
+  }
+}
+idleTimer();"
+
 
 # MUNICIPIOS
 # ------------------------
@@ -208,6 +228,8 @@ df_expediente_trabajo$fecha <- rep("2020-08-01",nrow(df_expediente_trabajo))
 ui <- fluidPage(style = "width: 100%; height: 100%;",
                 
                 #use_busy_spinner(spin = "fading-circle"),
+                
+                tags$script(inactivity),
                 
                 # Inicialización shinyjs
                 useShinyjs(),
@@ -1069,8 +1091,6 @@ server <- function(input, output, session) {
         }
       }
       
-      print(df)
-      
       df
     })
 
@@ -1636,6 +1656,8 @@ server <- function(input, output, session) {
       
       colnames(df)[3] <- "Evolució ampliació"
       colnames(df)[4] <- "Evolució reducció"
+      
+      print(df)
       
       return(df)
     })
