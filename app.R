@@ -40,24 +40,26 @@ library(shinybusy)
 source("llamada_api_thb_borme.R")
 
 
-inactivity <- "function idleTimer() {
-  var t = setTimeout(logout, 500000);
-  window.onmousemove = resetTimer; // catches mouse movements
-  window.onmousedown = resetTimer; // catches mouse movements
-  window.onclick = resetTimer;     // catches mouse clicks
-  window.onscroll = resetTimer;    // catches scrolling
-  window.onkeypress = resetTimer;  //catches keyboard actions
+timeoutSeconds <- 500
 
-  function logout() {
-    window.close();  //close the window
-  }
+inactivity <- sprintf("function idleTimer() {
+var t = setTimeout(logout, %s);
+window.onmousemove = resetTimer; // catches mouse movements
+window.onmousedown = resetTimer; // catches mouse movements
+window.onclick = resetTimer;     // catches mouse clicks
+window.onscroll = resetTimer;    // catches scrolling
+window.onkeypress = resetTimer;  //catches keyboard actions
 
-  function resetTimer() {
-    clearTimeout(t);
-    t = setTimeout(logout, 500000);  // time is in milliseconds (1000 is 1 second)
-  }
+function logout() {
+Shiny.setInputValue('timeOut', '%ss')
 }
-idleTimer();"
+
+function resetTimer() {
+clearTimeout(t);
+t = setTimeout(logout, %s);  // time is in milliseconds (1000 is 1 second)
+}
+}
+idleTimer();", timeoutSeconds*1000, timeoutSeconds, timeoutSeconds*1000)
 
 
 # MUNICIPIOS
@@ -476,6 +478,18 @@ ui <- fluidPage(style = "width: 100%; height: 100%;",
 server <- function(input, output, session) {
     
     datos <- reactiveValues(borme=NULL)
+    
+    
+    observeEvent(input$timeOut, { 
+      print(paste0("Sesión (", session$token, ") exiprada por límite de tiempo de carga el día: ", Sys.time()))
+      showModal(modalDialog(
+        title = "Timeout",
+        paste("Exceso de límite de tiempo de sesión debido a", input$timeOut, "inactividad -", Sys.time()),
+        footer = NULL
+      ))
+      session$close()
+    })
+    
 
     ###############################################
     # INICIALIZACIÓN LÓGICA DE VISUALIZACIÓN OBJETOS SHINY
