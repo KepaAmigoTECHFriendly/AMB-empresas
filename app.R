@@ -40,28 +40,6 @@ library(shinybusy)
 source("llamada_api_thb_borme.R")
 
 
-timeoutSeconds <- 500
-
-inactivity <- sprintf("function idleTimer() {
-var t = setTimeout(logout, %s);
-window.onmousemove = resetTimer; // catches mouse movements
-window.onmousedown = resetTimer; // catches mouse movements
-window.onclick = resetTimer;     // catches mouse clicks
-window.onscroll = resetTimer;    // catches scrolling
-window.onkeypress = resetTimer;  //catches keyboard actions
-
-function logout() {
-Shiny.setInputValue('timeOut', '%ss')
-}
-
-function resetTimer() {
-clearTimeout(t);
-t = setTimeout(logout, %s);  // time is in milliseconds (1000 is 1 second)
-}
-}
-idleTimer();", timeoutSeconds*1000, timeoutSeconds, timeoutSeconds*1000)
-
-
 # MUNICIPIOS
 # ------------------------
 
@@ -230,8 +208,6 @@ df_expediente_trabajo$fecha <- rep("2020-08-01",nrow(df_expediente_trabajo))
 ui <- fluidPage(style = "width: 100%; height: 100%;",
                 
                 #use_busy_spinner(spin = "fading-circle"),
-                
-                tags$script(inactivity),
                 
                 # Inicialización shinyjs
                 useShinyjs(),
@@ -479,17 +455,6 @@ server <- function(input, output, session) {
     
     datos <- reactiveValues(borme=NULL)
     
-    
-    observeEvent(input$timeOut, { 
-      print(paste0("Sesión (", session$token, ") exiprada por límite de tiempo de carga el día: ", Sys.time()))
-      showModal(modalDialog(
-        title = "Timeout",
-        paste("Exceso de límite de tiempo de sesión debido a", input$timeOut, "inactividad -", Sys.time()),
-        footer = NULL
-      ))
-      session$close()
-    })
-    
 
     ###############################################
     # INICIALIZACIÓN LÓGICA DE VISUALIZACIÓN OBJETOS SHINY
@@ -557,9 +522,40 @@ server <- function(input, output, session) {
     observeEvent(input$fechas_listado_borme, {
       print("Entro fechas")
       #show_spinner() # show the spinner
-      show_modal_spinner() # show the modal window
-      datos$borme = llamada_api(as.character(input$fechas_listado_borme[1]), as.character(input$fechas_listado_borme[2]))
-      remove_modal_spinner() # remove it when done
+      #show_modal_spinner() # show the modal window
+      
+      fecha_inicial <- input$fechas_listado_borme[1]
+      fecha_final <- input$fechas_listado_borme[2]
+      
+      num_meses <- floor(12*as.double(difftime(fecha_final,fecha_inicial))/365)
+      num_meses <- ifelse(num_meses == 0,1,num_meses)
+      
+      #datos$borme = llamada_api(as.character(input$fechas_listado_borme[1]), as.character(input$fechas_listado_borme[2]))
+      fecha_ini_consulta <- fecha_inicial
+      fecha_fin_consulta <- fecha_final
+      progress <- Progress$new(session)
+      long <- 1:num_meses
+      avance_barra <- rescale(long,c(0.2,1.0))
+      df <- data.frame(NULL)
+      for(i in long){
+        progress$set(value = avance_barra[i], message = 'Cargando datos...')
+        if(i == 1){
+          month(fecha_ini_consulta) <- month(fecha_fin_consulta)-1
+        }else if(i == num_meses){
+          fecha_fin_consulta <- fecha_ini_consulta-1
+          fecha_ini_consulta <- fecha_inicial
+          
+        }else{
+          fecha_fin_consulta <- fecha_ini_consulta-1
+          month(fecha_ini_consulta) <- month(fecha_ini_consulta)-1
+        }
+        df_mes <- llamada_api(as.character(fecha_ini_consulta), as.character(fecha_fin_consulta))
+        df <- rbind(df,df_mes)
+      }
+      datos$borme = df
+      progress$close()
+      
+      #remove_modal_spinner() # remove it when done
       #hide_spinner() # hide the spinner
       print("LLEGO 1")
     })
