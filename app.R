@@ -1354,7 +1354,7 @@ server <- function(input, output, session) {
           }
           df <- df[,c(orden,pos_otras)]
         }else{
-          df <- df[,c(2,1,3:ncol(df))]
+          df <- df[,c(2,1)]
         }
       }
       
