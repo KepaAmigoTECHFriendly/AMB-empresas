@@ -1651,7 +1651,7 @@ server <- function(input, output, session) {
       # Cálculo evoluciones ampliaciones y reducciones de capital
       df <- df %>%
         mutate(`Evolució ampliació` = 100*((`Ampliació capital subscrit` - (`Ampliació capital subscrit` - `Ampliació capital`))/(`Ampliació capital subscrit` - `Ampliació capital`))) %>%
-        mutate(`Evolució reducció` = 100*((`Reducció capital resultant subscrit` - `Reducció capital import reducció`)/(`Reducció capital resultant subscrit` - `Reducció capital import reducció`)))
+        mutate(`Evolució reducció` = 100*(((`Reducció capital resultant subscrit` + `Reducció capital import reducció`)-`Reducció capital resultant subscrit`)/(`Reducció capital resultant subscrit` + `Reducció capital import reducció`)))
       
       `Evolució ampliació` <- na.omit(df$`Evolució ampliació`)
       `Evolució reducció` <- na.omit(df$`Evolució reducció`)
@@ -1676,7 +1676,10 @@ server <- function(input, output, session) {
       colnames(df)[3] <- "Evolució ampliació"
       colnames(df)[4] <- "Evolució reducció"
       
-      print(df)
+      df <- df %>% 
+        group_by(`Forma Jurídica`,Mes) %>% 
+        ungroup() %>%
+        complete(`Forma Jurídica`, Mes, fill = list(`Evolució ampliació` = 0, `Evolució reducció` = 0))
       
       return(df)
     })
