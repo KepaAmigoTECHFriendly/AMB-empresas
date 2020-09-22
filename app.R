@@ -20,6 +20,7 @@ library(jsonlite)
 library(leaflet)  #Libreía mapa
 library(RCurl)
 library(utils)
+library(tidyr)
 library(RColorBrewer)
 library(scales)
 library(openxlsx)
@@ -1595,10 +1596,14 @@ server <- function(input, output, session) {
              "")
       )
      
-      
       df$Mes <- paste(year(df$Data),"/",month(df$Data),sep = "")  #Extracción de meses
 
       df <- recuento_estadistica_basica_2(df,1)  #Flag 1 para devolución recuento
+      
+      df <- df %>% 
+        dplyr::group_by(`Forma Jurídica`,Mes) %>% 
+        dplyr::ungroup() %>%
+        tidyr::complete(`Forma Jurídica`, Mes, fill = list(Recompte = 0))
 
       p <- df
       p <- p %>% plot_ly(x = ~Mes, y = ~Recompte, fill= ~`Forma Jurídica`, color = ~`Forma Jurídica`)
@@ -1677,9 +1682,9 @@ server <- function(input, output, session) {
       colnames(df)[4] <- "Evolució reducció"
       
       df <- df %>% 
-        group_by(`Forma Jurídica`,Mes) %>% 
-        ungroup() %>%
-        complete(`Forma Jurídica`, Mes, fill = list(`Evolució ampliació` = 0, `Evolució reducció` = 0))
+        dplyr::group_by(`Forma Jurídica`,Mes) %>% 
+        dplyr::ungroup() %>%
+        tidyr::complete(`Forma Jurídica`, Mes, fill = list(`Evolució ampliació` = 0, `Evolució reducció` = 0))
       
       return(df)
     })
