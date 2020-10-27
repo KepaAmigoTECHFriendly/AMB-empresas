@@ -41,6 +41,22 @@ library(shinybusy)
 source("llamada_api_thb_borme.R")
 
 
+library(RPostgres)
+library(DBI)
+
+db          <- 'amb'  
+host_db     <- '94.130.26.60' 
+db_port     <- '5432'  
+db_user     <- 'postgres'  
+db_password <- 'root_tech_2019'
+
+con <- dbConnect(RPostgres::Postgres(), dbname = db, host=host_db, port=db_port, user=db_user, password=db_password) 
+
+
+
+
+
+
 # MUNICIPIOS
 # ------------------------
 
@@ -245,7 +261,7 @@ ui <- fluidPage(style = "width: 100%; height: 100%;",
                                         selectInput("Municipio_comparaciones", "Seleccioneu el municipio de comparació",
                                                     municipios$Municipio[municipios$AMB == 1]),
                                         
-                                        dateRangeInput("fechas_listado_borme","Seleccioneu el intervalo de dates",start = (Sys.Date() - 30), end = Sys.Date()),
+                                        dateRangeInput("fechas_listado_borme","Seleccioneu el intervalo de dates",start = "2020-03-01", end = "2020-03-15"),
                                         
                                         checkboxGroupInput("variables_borme_listado", label = "Selección variables",
                                                            choices = list("Constitució" = 1,
@@ -531,7 +547,16 @@ server <- function(input, output, session) {
       if(fecha_final - fecha_inicial < 32){
         progress <- Progress$new(session)
         progress$set(value = 0.5, message = 'Cargando datos...')
-        datos$borme = llamada_api(as.character(input$fechas_listado_borme[1]), as.character(input$fechas_listado_borme[2]))
+        #datos$borme = llamada_api(as.character(input$fechas_listado_borme[1]), as.character(input$fechas_listado_borme[2]))
+
+        fecha_1 <- format(as.Date(fecha_inicial),"%d/%m/%Y")
+        fecha_2 <- format(as.Date(fecha_final),"%d/%m/%Y")
+        
+        print(fecha_1)
+        print(fecha_2)
+        
+        datos$borme <- dbGetQuery(con,paste("SELECT * FROM borme WHERE TO_DATE(fecha, 'DD/MM/YYYY') >= TO_DATE('",fecha_1,"', 'DD/MM/YYYY') AND TO_DATE(fecha, 'DD/MM/YYYY') <= TO_DATE('",fecha_2,"', 'DD/MM/YYYY')" ,sep = ""))
+        
         progress$close()
       }else{
         num_meses <- floor(12*as.double(difftime(fecha_final,fecha_inicial))/365)
@@ -556,14 +581,20 @@ server <- function(input, output, session) {
             fecha_fin_consulta <- fecha_ini_consulta-1
             month(fecha_ini_consulta) <- month(fecha_ini_consulta)-1
           }
-          df_mes <- llamada_api(as.character(fecha_ini_consulta), as.character(fecha_fin_consulta))
+
+          #df_mes <- llamada_api(as.character(fecha_ini_consulta), as.character(fecha_fin_consulta))
+          fecha_inicial_2 <- as.Date(fecha_ini_consulta)
+          fecha_final_2 <- as.Date(fecha_fin_consulta)
+          fecha_1 <- format(as.Date(fecha_inicial_2),"%d/%m/%Y")
+          fecha_2 <- format(as.Date(fecha_final_2),"%d/%m/%Y")
+          
+          df_mes <- dbGetQuery(con,paste("SELECT * FROM borme WHERE TO_DATE(fecha, 'DD/MM/YYYY') >= TO_DATE('",fecha_1,"', 'DD/MM/YYYY') AND TO_DATE(fecha, 'DD/MM/YYYY') <= TO_DATE('",fecha_2,"', 'DD/MM/YYYY')" ,sep = ""))
+          
           df <- rbind(df,df_mes)
         }
         datos$borme = df
         progress$close()
       }
-      
-      
       
       #remove_modal_spinner() # remove it when done
       #hide_spinner() # hide the spinner
@@ -592,13 +623,6 @@ server <- function(input, output, session) {
     # LLAMADAS API THINGSBOARD
     #==========================================================================
 
-    # Llamada API atributos activo Borme
-    atributos_Borme <- reactive({
-        #Llamada a la API
-        atributos_df <- llamada_atributos()
-
-        return(atributos_df)
-    })
 
     # Llamada a API datos Thingsboard BORME reactivo
     datos_estructurados_borme <- reactive({
@@ -627,9 +651,8 @@ server <- function(input, output, session) {
                      "Situación Concursal Resoluciones", "Escisión", "Transformación", "Disolución", "Extinción",
                      "Constitución comienzo operaciones", "Constitución objeto social","Constitución domicilio social",
                      "Constitución capital", "Otros conceptos","Datos registrales",
-                     "Latitud", "Longitud","Municipio",
-                     "Distancia respecto municipio en km", "Provincia","Fecha",
-                     "Dentro"
+                     "Coordenadas empresa","Latitud", "Longitud","Municipio",
+                     "Distancia respecto municipio en km","Dentro", "Provincia","Fecha"
         )
 
         #provincias <- tolower(atributos_Borme()$value[atributos_Borme()$key == "Provincias"])
@@ -645,7 +668,8 @@ server <- function(input, output, session) {
 
         #datos_borme <- datos_borme[str_detect(provincias, gsub("/.*","",tolower(datos_borme$Provincia))), ]
         colnames(datos_borme) <- nombres
-        datos_borme <- datos_borme[,c(1,2,5,6,24,34,35,59,60,61,62,63,64,65,66,41,37,39,40,43,44,58,69,70,71,74)]
+        datos_borme <- datos_borme[,c(1,2,5,6,24,34,35,59,60,61,62,63,64,65,66,41,37,39,40,43,44,58,70,71,72,76)]
+
 
         #Generación forma jurídica
         forma_juridica <- c()
@@ -700,7 +724,7 @@ server <- function(input, output, session) {
         }else{
           variables_entrada <- input$variables_borme_listado
         }
-        
+    
         
         #1)Filtrado en funcón de tab
         df <- df[,c("Denominació social",unlist(lista_variables_borme[as.numeric(variables_entrada)]),"Latitud","Longitud","Municipio","Data","Forma Jurídica","AMB")]
@@ -1073,6 +1097,8 @@ server <- function(input, output, session) {
         return(df)
       }
       
+      df$Data <- as.Date(df$Data, format="%d/%m/%Y")
+      df$Data <- as.Date(df$Data, format="%Y/%m/%d")
       df$Mes <- paste(year(df$Data),"/",month(df$Data),sep = "")  #Extracción de meses
       df_ref <- recuento_estadistica_basica_2(df,2)  #Flag 2 para devolución con cálculos estadísticos
 
@@ -1595,7 +1621,9 @@ server <- function(input, output, session) {
         need(df2 != 0 & df2 != 1 & df2 != 2 & nrow(df2) != 0,
              "")
       )
-     
+      
+      df$Data <- as.Date(df$Data, format="%d/%m/%Y")
+      df$Data <- as.Date(df$Data, format="%Y/%m/%d")
       df$Mes <- paste(year(df$Data),"/",month(df$Data),sep = "")  #Extracción de meses
 
       df <- recuento_estadistica_basica_2(df,1)  #Flag 1 para devolución recuento
@@ -1661,6 +1689,8 @@ server <- function(input, output, session) {
       `Evolució ampliació` <- na.omit(df$`Evolució ampliació`)
       `Evolució reducció` <- na.omit(df$`Evolució reducció`)
       
+      df$Data <- as.Date(df$Data, format="%d/%m/%Y")
+      df$Data <- as.Date(df$Data, format="%Y/%m/%d")
       df$Mes <- paste(year(df$Data),"/",month(df$Data),sep = "")  #Extracción de meses
       df <- df[!is.na(df$`Evolució ampliació`) | !is.na(df$`Evolució reducció`),]
       
