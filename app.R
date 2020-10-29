@@ -38,7 +38,7 @@ library(shinybusy)
 
 
 #Scripts R apoyo externos
-source("llamada_api_thb_borme.R")
+#source("llamada_api_thb_borme.R")
 
 
 library(RPostgres)
@@ -552,9 +552,6 @@ server <- function(input, output, session) {
         fecha_1 <- format(as.Date(fecha_inicial),"%d/%m/%Y")
         fecha_2 <- format(as.Date(fecha_final),"%d/%m/%Y")
         
-        print(fecha_1)
-        print(fecha_2)
-        
         datos$borme <- dbGetQuery(con,paste("SELECT * FROM borme WHERE TO_DATE(fecha, 'DD/MM/YYYY') >= TO_DATE('",fecha_1,"', 'DD/MM/YYYY') AND TO_DATE(fecha, 'DD/MM/YYYY') <= TO_DATE('",fecha_2,"', 'DD/MM/YYYY')" ,sep = ""))
         
         progress$close()
@@ -655,9 +652,7 @@ server <- function(input, output, session) {
                      "Distancia respecto municipio en km","Dentro", "Provincia","Fecha"
         )
 
-        #provincias <- tolower(atributos_Borme()$value[atributos_Borme()$key == "Provincias"])
-        
-        if(datos_borme == 0){
+        if(nrow(datos_borme) == 0){
           return(0)
         }
 
@@ -700,6 +695,11 @@ server <- function(input, output, session) {
                             "Ampliació capital resultant desemborsat","Reducció capital import reducció","Reducció capital resultant subscrit","Situació Concursal Resolucions",
                             "Latitud","Longitud","Municipio","Data","Forma Jurídica","AMB")
         colnames(datos_borme) <- nombres_catala
+
+        datos_borme$`Constitució capital`[datos_borme$`Constitució capital` != "-"] <- str_match(datos_borme$`Constitució capital`[datos_borme$`Constitució capital` != "-"], " \\s*(.*?)\\s* euros")[,2]
+        datos_borme$`Constitució capital`[!grepl("[a-d]",datos_borme$`Constitució capital`) & datos_borme$`Constitució capital` != "-"] <- gsub("[,].*","",unlist(gsub("[ ].*","", str_extract_all(datos_borme$`Constitució capital`[!grepl("[a-d]",datos_borme$`Constitució capital`) & datos_borme$`Constitució capital` != "-"],"\\(?[0-9,.]+\\)?"))))
+        datos_borme$`Constitució capital`[!grepl("[a-d]",datos_borme$`Constitució capital`) & datos_borme$`Constitució capital` != "-"] <- as.numeric(gsub("[.]","",datos_borme$`Constitució capital`[!grepl("[a-d]",datos_borme$`Constitució capital`) & datos_borme$`Constitució capital` != "-"]))
+        datos_borme$`Constitució capital`[!grepl("[a-d]",datos_borme$`Constitució capital`) & datos_borme$`Constitució capital` != "-"] <- format(as.numeric(datos_borme$`Constitució capital`[!grepl("[a-d]",datos_borme$`Constitució capital`) & datos_borme$`Constitució capital` != "-"]), big.mark = ".")
 
         return(datos_borme)
     })
@@ -807,7 +807,6 @@ server <- function(input, output, session) {
         }else if(is.null(colnames(df[,2:(ncol(df)-6)])) & ncol(df) != 8 ){
           return(2)
         }
-        
 
         # Manejo de error: "inexistencia de datos para los filtros seleccionados" de cara al usuario
         shiny::validate(
@@ -818,7 +817,7 @@ server <- function(input, output, session) {
         #need(ncol(df[,2:(ncol(df)-6)]) != 0,
         #"¡Atenció!\nNo existeixen dades disponibles per al valor dels filtres seleccionats.\nModifica el valor dels filtres si ho desitja.")
         #)
-        
+
         # 2)Filtro Agrupaciones
         if(input$comparaciones == "Barcelona provincia"){
             df <- df
@@ -856,10 +855,10 @@ server <- function(input, output, session) {
         }
         
         # Manejo de error: "inexistencia de datos para los filtros seleccionados" de cara al usuario
-        shiny::validate(
-            need(nrow(df) != 0,
-                 "")
-        )
+        #shiny::validate(
+        #need(nrow(df) != 0,
+        #        "")
+        #)
 
         return(df)
     })
@@ -872,7 +871,9 @@ server <- function(input, output, session) {
     func_estadistica_basica <- function(df){
         df <- df
         
-        if(df == 0 | df == 1 | df == 2){
+        if(!is.data.frame(df)){
+          return(df)
+        }else if(nrow(df) == 0){
           return(df)
         }
 
@@ -1019,15 +1020,14 @@ server <- function(input, output, session) {
         
         df_comparativa <- func_estadistica_basica(datos_filtrados_borme_comparativa())
 
-        if((df_comparativa == 0 | df_comparativa == 1 | df_comparativa == 2) & !is.data.frame(df_comparativa)){
-          #df_comparativa <- df_ref
-          #df_comparativa[1,] <- rep(NA,ncol(df_comparativa))
-          
+        if(!is.data.frame(df_comparativa)){
           df <- rbind(df_ref,df_representacion_en_territorio)
-          
           df$Total <- c(sum(as.numeric(df[1,])),100)
           rownames(df) <- c("Recompte", "Representació en territori de referència (%)")
-          
+        }else if(nrow(df_comparativa) == 0){
+          df <- rbind(df_ref,df_representacion_en_territorio)
+          df$Total <- c(sum(as.numeric(df[1,])),100)
+          rownames(df) <- c("Recompte", "Representació en territori de referència (%)")
         }else{
           # Cálculo representación por formas jurídicas respecto terrritorio comparación
           df_representacion <- df_ref
@@ -1099,7 +1099,7 @@ server <- function(input, output, session) {
       
       df$Data <- as.Date(df$Data, format="%d/%m/%Y")
       df$Data <- as.Date(df$Data, format="%Y/%m/%d")
-      df$Mes <- paste(year(df$Data),"/",month(df$Data),sep = "")  #Extracción de meses
+      df$Mes <- format(as.Date(df$Data), "%Y-%m")  #Extracción de meses
       df_ref <- recuento_estadistica_basica_2(df,2)  #Flag 2 para devolución con cálculos estadísticos
 
       if((df_ref == 0 | df_ref == 1 | df_ref == 2) & !is.data.frame(df_ref)){
@@ -1108,10 +1108,14 @@ server <- function(input, output, session) {
       
       df2 <- datos_filtrados_borme_comparativa()
       
-      if(df2 == 0 | df2 == 1 | df2 == 2){
+      if(!is.data.frame(df2)){
+        df <- df_ref
+      }else if(nrow(df2) == 0){
         df <- df_ref
       }else{
-        df2$Mes <- paste(year(df2$Data),"/",month(df2$Data),sep = "")  #Extracción de meses
+        df2$Data <- as.Date(df2$Data, format="%d/%m/%Y")
+        df2$Data <- as.Date(df2$Data, format="%Y/%m/%d")
+        df2$Mes <- format(as.Date(df2$Data), "%Y-%m")  #Extracción de meses
         df_comparativa <- recuento_estadistica_basica_2(df2, 2) #Flag 2 para devolución con cálculos estadísticos
         
         df_representacion <- df_ref
@@ -1278,7 +1282,7 @@ server <- function(input, output, session) {
       )
       
       if(input$variables_mapa == 1){
-        df_tabla <- df_tabla[,c(1,2,3,4)]
+        df_tabla <- df_tabla[,c(1,2,3,4,5)]
       }else{
         df_tabla <- df_tabla[,c(1,2,3)]
       }
@@ -1611,20 +1615,29 @@ server <- function(input, output, session) {
       
       # Manejo de error
       shiny::validate(
-        need(df != 0 & df != 1 & df != 2 & nrow(df) != 0,
+        need(is.data.frame(df),
+             "")
+      )
+      shiny::validate(
+        need(nrow(df) != 0,
              "")
       )
       
       # Manejo de error
       df2 <- estadistica_basica_2()
+      # Manejo de error
       shiny::validate(
-        need(df2 != 0 & df2 != 1 & df2 != 2 & nrow(df2) != 0,
+        need(is.data.frame(df2),
+             "")
+      )
+      shiny::validate(
+        need(nrow(df2) != 0,
              "")
       )
       
       df$Data <- as.Date(df$Data, format="%d/%m/%Y")
       df$Data <- as.Date(df$Data, format="%Y/%m/%d")
-      df$Mes <- paste(year(df$Data),"/",month(df$Data),sep = "")  #Extracción de meses
+      df$Mes <- format(as.Date(df$Data), "%Y-%m")  #Extracción de meses
 
       df <- recuento_estadistica_basica_2(df,1)  #Flag 1 para devolución recuento
       
@@ -1632,6 +1645,8 @@ server <- function(input, output, session) {
         dplyr::group_by(`Forma Jurídica`,Mes) %>% 
         dplyr::ungroup() %>%
         tidyr::complete(`Forma Jurídica`, Mes, fill = list(Recompte = 0))
+      
+      
 
       p <- df
       p <- p %>% plot_ly(x = ~Mes, y = ~Recompte, fill= ~`Forma Jurídica`, color = ~`Forma Jurídica`)
@@ -1691,7 +1706,7 @@ server <- function(input, output, session) {
       
       df$Data <- as.Date(df$Data, format="%d/%m/%Y")
       df$Data <- as.Date(df$Data, format="%Y/%m/%d")
-      df$Mes <- paste(year(df$Data),"/",month(df$Data),sep = "")  #Extracción de meses
+      df$Mes <- format(as.Date(df$Data), "%Y-%m")  #Extracción de meses
       df <- df[!is.na(df$`Evolució ampliació`) | !is.na(df$`Evolució reducció`),]
       
       # Llamada a función para filtrado de atípicos
