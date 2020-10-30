@@ -254,10 +254,10 @@ ui <- fluidPage(style = "width: 100%; height: 100%;",
                                       sidebarPanel(
                                         
                                         selectInput("Municipio_principal", "Seleccioneu el territori de referència",
-                                                    c(as.character(mun),"AMB", "AMB sense Barcelona ciutat", "Barcelona ciutat", "Barcelona provincia")
+                                                    c(as.character(mun),"AMB", "AMB sense Barcelona ciutat", "Barcelona ciutat", "Barcelona província")
                                         ),
-                                        radioButtons(inputId="comparaciones",label="Seleccioneu el territori de comparació",choices=c("AMB", "AMB sense Barcelona ciutat", "Barcelona ciutat", "Barcelona provincia", "Un altre municipi"),
-                                                     selected = "Barcelona provincia"),
+                                        radioButtons(inputId="comparaciones",label="Seleccioneu el territori de comparació",choices=c("AMB", "AMB sense Barcelona ciutat", "Barcelona ciutat", "Barcelona província", "Un altre municipi"),
+                                                     selected = "Barcelona província"),
                                         selectInput("Municipio_comparaciones", "Seleccioneu el municipio de comparació",
                                                     municipios$Municipio[municipios$AMB == 1]),
                                         
@@ -385,7 +385,7 @@ ui <- fluidPage(style = "width: 100%; height: 100%;",
                                       # Menú de datos
                                       sidebarPanel(
                                         selectInput("Municipio_principal_ertes", "Seleccioneu el territori de referència",
-                                                    c(as.character(mun),"AMB", "AMB sense Barcelona ciutat", "Barcelona ciutat", "Barcelona provincia", "Catalunya")
+                                                    c(as.character(mun),"AMB", "AMB sense Barcelona ciutat", "Barcelona ciutat", "Barcelona província", "Catalunya")
                                         ),
                                         
                                         dateRangeInput("fechas_listado_ertes","Seleccioneu l'interval de dates",start = "2020-07-01", end = Sys.Date()),
@@ -658,7 +658,7 @@ server <- function(input, output, session) {
 
         # Manejo de error: "inexistencia de datos para el intervalo de fechas seleccionado" de cara al usuario
         #shiny::validate(
-        #need(datos_borme != 0, "¡Atenció!\nNo existeixen dades disponibles per a l'interval de dates seleccionat.\nSelecciona un altre interval si ho desitja.")
+        #need(datos_borme != 0, "Atenció!\nNo existeixen dades disponibles per a l'interval de dates seleccionat.\nSelecciona un altre interval si ho desitja.")
             #)
 
         #datos_borme <- datos_borme[str_detect(provincias, gsub("/.*","",tolower(datos_borme$Provincia))), ]
@@ -741,7 +741,7 @@ server <- function(input, output, session) {
         
 
         # 2)Filtro Agrupaciones
-        if(input$Municipio_principal == "Barcelona provincia"){
+        if(input$Municipio_principal == "Barcelona província"){
             df <- df
         }else{
             switch(input$Municipio_principal,
@@ -815,11 +815,11 @@ server <- function(input, output, session) {
         )
         #shiny::validate(
         #need(ncol(df[,2:(ncol(df)-6)]) != 0,
-        #"¡Atenció!\nNo existeixen dades disponibles per al valor dels filtres seleccionats.\nModifica el valor dels filtres si ho desitja.")
+        #"Atenció!\nNo existeixen dades disponibles pel valor dels filtres seleccionats.\nModifiqueu el valor dels filtres si ho desitja.")
         #)
 
         # 2)Filtro Agrupaciones
-        if(input$comparaciones == "Barcelona provincia"){
+        if(input$comparaciones == "Barcelona província"){
             df <- df
         }else{
             switch(input$comparaciones,
@@ -1098,8 +1098,8 @@ server <- function(input, output, session) {
       }
       
       df$Data <- as.Date(df$Data, format="%d/%m/%Y")
-      df$Data <- as.Date(df$Data, format="%Y/%m/%d")
-      df$Mes <- format(as.Date(df$Data), "%Y-%m")  #Extracción de meses
+      #df$Data <- as.Date(df$Data, format="%Y/%m/%d")
+      df$Mes <- format(as.Date(df$Data), "%m/%Y")  #Extracción de meses
       df_ref <- recuento_estadistica_basica_2(df,2)  #Flag 2 para devolución con cálculos estadísticos
 
       if((df_ref == 0 | df_ref == 1 | df_ref == 2) & !is.data.frame(df_ref)){
@@ -1114,8 +1114,8 @@ server <- function(input, output, session) {
         df <- df_ref
       }else{
         df2$Data <- as.Date(df2$Data, format="%d/%m/%Y")
-        df2$Data <- as.Date(df2$Data, format="%Y/%m/%d")
-        df2$Mes <- format(as.Date(df2$Data), "%Y-%m")  #Extracción de meses
+        #df$Data <- as.Date(df$Data, format="%Y/%m/%d")
+        df2$Mes <- format(as.Date(df2$Data), "%m/%Y")  #Extracción de meses
         df_comparativa <- recuento_estadistica_basica_2(df2, 2) #Flag 2 para devolución con cálculos estadísticos
         
         df_representacion <- df_ref
@@ -1137,7 +1137,7 @@ server <- function(input, output, session) {
           rownames(df) <- c("Mitjana", "Máxim", "Mínim", "Desviació tipus", "Percentil 25", "Percentil 75")
         }else{
           rownames(df) <- c("Mitjana", "Máxim", "Mínim", "Desviació tipus", "Percentil 25", "Percentil 75",
-                            "Representación Mitjana (%)", "Representación Máxim (%)", "Representación Mínim (%)", "Representación Desviació tipus (%)", "Representación Percentil 25 (%)", "Representación Percentil 75 (%)")
+                            "Mitjana (%)", "Máxim (%)", "Mínim (%)", "Desviació tipus (%)", "Percentil 25 (%)", "Percentil 75 (%)")
         }
       }
       
@@ -1182,7 +1182,7 @@ server <- function(input, output, session) {
         # Manejo de error: "inexistencia de datos para los filtros seleccionados" de cara al usuario
         shiny::validate(
           need(is.data.frame(df_tabla) & nrow(df_tabla) != 0,
-               "¡Atenció!\nNo existeixen dades disponibles per al valor dels filtres seleccionats.\nModifica el valor dels filtres si ho desitja.")
+               "Atenció!\nNo existeixen dades disponibles pel valor dels filtres seleccionats.\nModifiqueu el valor dels filtres si ho desitja.")
         )
         
         df_tabla <- df_tabla[,1:(ncol(df_tabla)-6)] #Evita la visualización de las variables lat,long,municipio y provincia.
@@ -1192,7 +1192,7 @@ server <- function(input, output, session) {
         # Manejo de error: "inexistencia de datos para los filtros seleccionados" de cara al usuario
         shiny::validate(
             need(!is.null(nrow(df_tabla) & is.data.frame(df_tabla)),
-                 "¡Atenció!\nNo existeixen dades disponibles per al valor dels filtres seleccionats.\nModifica el valor dels filtres si ho desitja.")
+                 "Atenció!\nNo existeixen dades disponibles pel valor dels filtres seleccionats.\nModifiqueu el valor dels filtres si ho desitja.")
         )
         #Límite visualización registros tabla
         tabla <- datatable(df_tabla, options = list(pageLength = 5,
@@ -1216,13 +1216,13 @@ server <- function(input, output, session) {
             need(is.data.frame(df_tabla),
                  switch(as.character(df_tabla),
                         "0"={
-                          "¡Atenció!\nNo existeixen dades disponibles per al valor dels filtres seleccionats.\nModifica el valor dels filtres si ho desitja."
+                          "Atenció!\nNo existeixen dades disponibles pel valor dels filtres seleccionats.\nModifiqueu el valor dels filtres si ho desitja."
                         },
                         "1"={
-                          "¡Atenció!\nNo hi ha cap variable seleccionada.\nSi us plau, selecciona el menys una variable."
+                          "Atenció!\nNo hi ha cap variable seleccionada.\nSi us plau, selecciona el menys una variable."
                         },
                         "2"={
-                          "¡Atenció!\nNo existeixen dades disponibles per al valor dels filtres seleccionats.\nModifica el valor dels filtres si ho desitja."
+                          "Atenció!\nNo existeixen dades disponibles pel valor dels filtres seleccionats.\nModifiqueu el valor dels filtres si ho desitja."
                         }
                  )
             )
@@ -1247,13 +1247,13 @@ server <- function(input, output, session) {
         # Manejo de error: "inexistencia de datos para los filtros seleccionados" de cara al usuario
         shiny::validate(
           need(df != 0,
-               "¡Atenció!\nEs necesario selecionar un periodo de 2 meses para el cálculo de estadísticas mensuales.\nModifica el valor dels filtres si ho desitja.")
+               "Atenció!\nNo existeixen dades disponibles pel valor dels filtres seleccionats.\nModifiqueu el valor dels filtres si ho desitja.")
         )
         
         # Manejo de error: "inexistencia de datos para los filtros seleccionados" de cara al usuario
         shiny::validate(
           need(df != 1,
-               "¡Atenció!\nNo existeixen dades disponibles per al valor dels filtres seleccionats.\nModifica el valor dels filtres si ho desitja.")
+               "Atenció!\nNo existeixen dades disponibles pel valor dels filtres seleccionats.\nModifiqueu el valor dels filtres si ho desitja.")
         )
         
         #Límite visualización registros tabla
@@ -1277,7 +1277,7 @@ server <- function(input, output, session) {
       }
       shiny::validate(
         need(any(grepl(variable,colnames(na.omit(df_tabla)))) & nrow(na.omit(df_tabla)) != 0,
-             "¡Atenció!\nNo existeixen dades disponibles per al valor dels filtres seleccionats.\nModifica el valor dels filtres si ho desitja."
+             "Atenció!\nNo existeixen dades disponibles pel valor dels filtres seleccionats.\nModifiqueu el valor dels filtres si ho desitja."
         )
       )
       
@@ -1303,7 +1303,7 @@ server <- function(input, output, session) {
       
       shiny::validate(
         need(nrow(df) != 0 & is.data.frame(df),
-             "¡Atenció!\nNo hay datos suficientes como para generar el gráfico."
+             "Atenció!\nNo hay datos suficientes como para generar el gráfico."
         )
       )
       
@@ -1572,7 +1572,7 @@ server <- function(input, output, session) {
         
         shiny::validate(
           need(ncol(df) > 0,
-               "¡Atenció!\nNo hay datos suficientes como para generar el gráfico."
+               "Atenció!\nNo hay datos suficientes como para generar el gráfico."
           )
         )
         
@@ -1636,8 +1636,8 @@ server <- function(input, output, session) {
       )
       
       df$Data <- as.Date(df$Data, format="%d/%m/%Y")
-      df$Data <- as.Date(df$Data, format="%Y/%m/%d")
-      df$Mes <- format(as.Date(df$Data), "%Y-%m")  #Extracción de meses
+      #df$Data <- as.Date(df$Data, format="%Y/%m/%d")
+      df$Mes <- format(as.Date(df$Data), "%m/%Y")  #Extracción de meses
 
       df <- recuento_estadistica_basica_2(df,1)  #Flag 1 para devolución recuento
       
@@ -1705,8 +1705,8 @@ server <- function(input, output, session) {
       `Evolució reducció` <- na.omit(df$`Evolució reducció`)
       
       df$Data <- as.Date(df$Data, format="%d/%m/%Y")
-      df$Data <- as.Date(df$Data, format="%Y/%m/%d")
-      df$Mes <- format(as.Date(df$Data), "%Y-%m")  #Extracción de meses
+      #df$Data <- as.Date(df$Data, format="%Y/%m/%d")
+      df$Mes <- format(as.Date(df$Data), "%m/%Y")  #Extracción de meses
       df <- df[!is.na(df$`Evolució ampliació`) | !is.na(df$`Evolució reducció`),]
       
       # Llamada a función para filtrado de atípicos
@@ -1781,7 +1781,7 @@ server <- function(input, output, session) {
       
       shiny::validate(
         need(nrow(na.omit(df_filtrados)) != 0,
-             "¡Atenció!\nNo existeixen dades disponibles per al valor dels filtres seleccionats.\nModifica el valor dels filtres si ho desitja."
+             "Atenció!\nNo existeixen dades disponibles pel valor dels filtres seleccionats.\nModifiqueu el valor dels filtres si ho desitja."
         )
       )
       
@@ -1797,7 +1797,7 @@ server <- function(input, output, session) {
       }
       shiny::validate(
         need(any(grepl(variable,colnames(na.omit(df_filtrados)))) & nrow(na.omit(df_filtrados)) != 0,
-             "¡Atenció!\nNo existeixen dades disponibles per al valor dels filtres seleccionats.\nModifica el valor dels filtres si ho desitja."
+             "Atenció!\nNo existeixen dades disponibles pel valor dels filtres seleccionats.\nModifiqueu el valor dels filtres si ho desitja."
         )
       )
       
@@ -1943,7 +1943,7 @@ server <- function(input, output, session) {
       df$provincia <- municipios_ertes$Provincia[match(df$M, municipios_ertes$M)]
       
       # 2) Filtro territorio
-      if(input$Municipio_principal_ertes == "Barcelona provincia"){
+      if(input$Municipio_principal_ertes == "Barcelona província"){
         #df <- df[match(m,df$M),]
         df <- df[df$provincia == "Barcelona",]
       }else{
@@ -2013,7 +2013,7 @@ server <- function(input, output, session) {
       df$provincia <- municipios_ertes$Provincia[match(df$M, municipios_ertes$M)]
       
       # 2) Filtro territorio
-      if(input$Municipio_principal_ertes == "Barcelona provincia"){
+      if(input$Municipio_principal_ertes == "Barcelona província"){
         #df <- df[match(m,df$M),]
         df <- df[df$provincia == "Barcelona",]
       }else{
@@ -2065,7 +2065,7 @@ server <- function(input, output, session) {
       
       # Manejo de error
       shiny::validate(
-        need(df != 0, "¡Atenció!\nNo existen datos disponibles para los filtros seleccionados.\nModifica los filtros si lo deseas.")
+        need(df != 0, "Atenció!\nNo existeixen dades disponibles pel valor dels filtres seleccionats.\nModifiqueu el valor dels filtres si ho desitja.")
       )
       
       df <- func_recuento_econom(df,2) #Flag 0 para devolución recuento
@@ -2136,7 +2136,7 @@ server <- function(input, output, session) {
       
       # Manejo de error: "inexistencia de datos para el intervalo de fechas seleccionado" de cara al usuario
       shiny::validate(
-        need(ncol(df) > 3, "¡Atenció!\nNo existen datos disponibles para los filtros seleccionados.\nModifica los filtros si lo deseas.")
+        need(ncol(df) > 3, "Atenció!\nNo existeixen dades disponibles pel valor dels filtres seleccionats.\nModifiqueu el valor dels filtres si ho desitja.")
       )
       
       return(df)
@@ -2230,7 +2230,7 @@ server <- function(input, output, session) {
       
       # Manejo de error
       shiny::validate(
-        need(df != 0, "¡Atenció!\nNo existeixen dades disponibles per a l'interval de dates seleccionat.\nSelecciona un altre interval si ho desitja.")
+        need(df != 0, "Atenció!\nNo existeixen dades disponibles pel valor dels filtres seleccionats.\nModifiqueu el valor dels filtres si ho desitja.")
       )
       
       df <- func_recuento_tipos(df,0) 
@@ -2281,7 +2281,7 @@ server <- function(input, output, session) {
       
       # Manejo de error
       shiny::validate(
-        need(df != 0, "¡Atenció!\nNo existeixen dades disponibles per a l'interval de dates seleccionat.\nSelecciona un altre interval si ho desitja.")
+        need(df != 0, "Atenció!\nNo existeixen dades disponibles pel valor dels filtres seleccionats.\nModifiqueu el valor dels filtres si ho desitja.")
       )
       
       df <- func_recuento_econom(df,0) 
