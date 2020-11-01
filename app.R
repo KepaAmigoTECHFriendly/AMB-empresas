@@ -1779,6 +1779,8 @@ server <- function(input, output, session) {
       
       df_filtrados <- datos_filtrados_borme()
       
+      df_filtrados <- df_filtrados[as.numeric(df_filtrados$Latitud) > 41.13,]
+      
       shiny::validate(
         need(nrow(na.omit(df_filtrados)) != 0,
              "Atenció!\nNo existeixen dades disponibles pel valor dels filtres seleccionats.\nModifiqueu el valor dels filtres si ho desitja."
@@ -1786,7 +1788,7 @@ server <- function(input, output, session) {
       )
       
       #df_filtrados <- df_filtrados[df_filtrados$Latitud > 39 & df_filtrados$Latitud < 43,]
-      df_filtrados <- df_filtrados[df_filtrados$Latitud > 36 & df_filtrados$Latitud < 44,]
+      #df_filtrados <- df_filtrados[df_filtrados$Latitud > 36 & df_filtrados$Latitud < 44,]
       
       if(input$variables_mapa == 1){
         variable <- "Constitució objecte social"
@@ -1807,10 +1809,12 @@ server <- function(input, output, session) {
         df_filtrados <-  df_filtrados[filtrado_tabla, , drop = F]
       }
       
+      df_filtrados <- df_filtrados[!is.na(df_filtrados$Latitud),]
+      
       #Inicialización popup
-      empresas_popup <- df_filtrados$`Denominació social`[!is.na(df_filtrados$Latitud)]
+      empresas_popup <- df_filtrados$`Denominació social`
       domicilio_social_popup <- df_filtrados[,pos]
-      domicilio_social_popup <- domicilio_social_popup[!is.na(df_filtrados$Latitud)]
+      domicilio_social_popup <- domicilio_social_popup
       popup <- paste("Denominació social: ", empresas_popup, "<br/>",
                      "Domicili social: ", domicilio_social_popup, sep = "") %>% lapply(htmltools::HTML)
 
