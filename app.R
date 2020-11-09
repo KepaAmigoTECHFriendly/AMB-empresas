@@ -248,6 +248,35 @@ ui <- fluidPage(style = "width: 100%; height: 100%;",
                 
                 navbarPage(id ="menu", "Menú empreses",
                            
+                           #=============================
+                           # SOBRE LA PÁGINA
+                           #=============================
+                           
+                           tabPanel("Presentació",
+                                    fluidRow(style = "margin-left: 50px; margin-right: 60px; margin-bottom: 200px;",
+                                             tags$div(
+                                               tags$h4(tags$b("PRESENTACIÓ")),
+                                               tags$div(style = "font-size: 16px;",
+                                                        "L’Àrea de Desenvolupament Social i Econòmic de l’Àrea Metropolitana de Barcelona crea aquesta aplicació MAPA OCUPACIONAL DE L’ÀREA METROPOLITANA DE BARCELONA amb l’objectiu de disposar d’informació actualitzada sobre la situació i evolució del mercat de treball i l’oferta de serveis disponible per a donar suport a la planificació i la implementació de polítiques d’ocupació en el territori, així com als serveis d’orientació i inserció municipals.", tags$br(),tags$br(),
+                                                        "Si bé la informació està disponible en fonts diverses, amb aquesta eina hem volgut aglutinar-la per fer-la més accessible i facilitar la seva visualització amb mapes de geolocalització i amb informes gràfics interactius i de relacions entre variables relatives al mercat de treball.  ",tags$br(),tags$br(),
+                                                        "Tanmateix, generada des d’una visió metropolitana del mercat de treball, l’aplicació ens aporta informació sobre el conjunt del territori metropolità, sobre cadascun dels 36 municipis que l’integren i sobre àmbits territorials superiors, i ens permet realitzar comparatives entre àmbits seleccionats. ",tags$br(),tags$br(),
+                                                        "Mitjançant la utilització de tècniques d’intel·ligència artificial, la descàrrega periòdica de dades es fa de forma automatitzada, restant disponibles dins l’aplicació perquè l’usuari o usuària final en faci el tractament que en cada cas sigui més adient. ",tags$br(),tags$br(),
+                                               ),
+                                               
+                                               tags$h4(tags$b("CORREU ELECTRÒNIC DE CONTACTE")), 
+                                               tags$div(style = "font-size: 16px;",
+                                                        tags$a(href="mailto:vmalvarez@amb.cat", "vmalvarez@amb.cat"), tags$br(), tags$br(),
+                                               ),
+                                               
+                                               tags$h4(tags$b("PERÍODE DE DISPONIBILITAT I FREQÜÈNCIA D’ACTUALITZACIÓ DE LES DADES")),
+                                               tags$div(style = "font-size: 16px;",
+                                                        "La disponibilitat de les dades és a partir de l’1 de gener de 2015.",tags$br(),tags$br(),
+                                                        "L’actualització de la base de dades es realitza periòdicament de forma diària.",tags$br(),tags$br(),
+                                               )
+                                             )
+                                    )
+                           ),
+                           
                            tabPanel("BORME",
                                     sidebarLayout(
                                       # Menú de datos
@@ -460,7 +489,86 @@ ui <- fluidPage(style = "width: 100%; height: 100%;",
                                         
                                       )
                                     )
-                           ) # Cierre tabpanel ERTES
+                           ), # Cierre tabpanel ERTES
+                           
+                           #=============================
+                           # Notas Metodológicas
+                           #=============================
+                           tabPanel("Notes metodòlogiques",
+                                    fluidRow(style = "margin-left: 50px; margin-right: 60px; margin-bottom: 200px;",
+                                             tags$div(
+                                               tags$h4(tags$b("Glossari BORME")),
+                                               tags$div(style = "font-size: 16px;",
+                                                        "BORME: Butlletí Oficial de l'Registre Mercantil. Butlletí oficial on es publiquen la totalitat d'actes jurídics de les entitats mercantils o societats mercantils d'Espanya, que per disposició legal han de donar-se a coneixement públic.",tags$br(),
+                                                        tags$ul(
+                                                          tags$li(
+                                                            tags$b("Constitució: "),"Creació formal d'una empresa per començar les seves operacions, adquirint, al seu torn, personalitat jurídica. Els actes jurídics publicats amb la constitució de la societat són: Començament d'operacions, Objecte social, Domicili social i Capital." ,tags$br(),
+                                                          ),
+                                                          tags$li(
+                                                            tags$b("Canvis: "),"Acte jurídic que recull els següents canvis: ",tags$br(),
+                                                            tags$ul(
+                                                              tags$li("Canvi d'objecte social: Modificació parcial de la concreta activitat, que integra una societat, mitjançant la inclusió de noves activitats, que fan possible l'obtenció de beneficis, o la supressió o eliminació d'alguna d'elles. "),
+                                                              tags$li("Canvi de domicili social: Trasllat de centre on resideix l'efectiva administració i direcció d'una societat o el seu principal establiment o explotació."),
+                                                            ),
+                                                          ),
+                                                          tags$li(
+                                                            tags$b("Nomenaments: "),"Adquisició de la condició dels diferents càrrecs que pot ostentar qualsevol persona física o jurídica en l'àmbit intern (administrador, consellers ...) o extern (auditors, liquidadors ...) d'una societat.",tags$br(),
+                                                          ),
+                                                          tags$li(
+                                                            tags$b("Ampliacions de capital: "),"Operació jurídica per la qual s'eleva la xifra de capital que figura en els estatuts. Condició per incrementar els recursos de la societat, evitar la descapitalització o d'adaptar el capital a el creixement de la mateixa. Els actes jurídics publicats amb l'ampliació de capital són: Capital i Resultant subscrit o desemborsat i Resultant subscrit.",tags$br(),
+                                                          ),
+                                                          tags$li(
+                                                            tags$b("Reduccions de capital: "),"Operació jurídica que consisteix en la disminució de la xifra que figura en el compte de l'passiu, dins l'epígraf fons propis, amb el nom de capital subscrit i que reflecteix el valor nominal de les accions emeses per la societat en cada moment, ia la qual corresponen elements patrimonials de l'actiu, amb la finalitat que garanteixi una xifra de retenció, per poder fer front als deutes socials. Els actes jurídics publicats amb l'ampliació de capital són: Import reducció i Resultant subscrit.",tags$br(),
+                                                          ),
+                                                          tags$li(
+                                                            tags$b("Dissolució: "),"És el moment inicial que obre pas a la liquidació de la societat tendent a la seva extinció, encara que no suposi aquest estat últim ni la desaparició de l'vincle jurídic entre els accionistes de manera automàtica.",tags$br(),
+                                                          ),
+                                                          tags$li(
+                                                            tags$b("Extinció: "),"Terme d'una societat un cop dividit l'haver social i distribuït, si existís, el romanent, d'acord amb dret. Un cop efectuada aquesta distribució l'extinció s'inscriu en el Registre.",tags$br(),
+                                                          ),
+                                                          tags$li(
+                                                            tags$b("Fusió: "),"Procediment societari de concentració empresarial en virtut de qual dues o més societats mercantils inscrites s'integren en una única societat mitjançant la transmissió en bloc dels seus patrimonis i l'atribució als socis de les societats que s'extingeixen d'accions, participacions o quotes de la societat resultant, que pot ser de nova creació o una de les societats que es fusionen.",tags$br(),
+                                                          ),
+                                                          tags$li(
+                                                            tags$b("Escissió: "),"Procés invers a el de fusió, es tracta d'una disgregació de forces econòmiques consistent en la separació de el patrimoni d'una societat mercantil inscrita en dues o més parts, per aportar cadascuna a una altra o altres societats.",tags$br(),
+                                                          ),
+                                                          tags$li(
+                                                            tags$b("Transformació: "),"Procés pel qual una societat altera la seva forma i estructura jurídica, adoptant la corresponent a un tipus diferent reconegut per la Llei, sense produir-se un canvi en la seva personalitat jurídica, que subsisteix sota la forma nova.",tags$br(),
+                                                          ),
+                                                          tags$li(
+                                                            tags$b("Situació concursal: "),"Procés en el qual es troba una societat en situació d'insolvència en què no pot fer front a la totalitat dels pagaments que deu.",tags$br(),tags$br(),
+                                                          ),
+                                                        )
+                                               )
+                                             ),
+                                             tags$h4(tags$b("Forma jurídica")),
+                                             tags$div(style = "font-size: 16px;",
+                                                      tags$ul(
+                                                        tags$li(tags$b("S.L: "),"Sociedad Limitada." ,tags$br(),),
+                                                        tags$li(tags$b("S.L.P: "),"Sociedad Limitada Profesional." ,tags$br(),),
+                                                        tags$li(tags$b("S.L.L: "),"Sociedad Limitada Laboral." ,tags$br(),),
+                                                        tags$li(tags$b("S.A: "),"Sociedad Anónima." ,tags$br(),),
+                                                        tags$li(tags$b("S.A.L: "),"Sociedad Anónima Laboral." ,tags$br(),),
+                                                        tags$li(tags$b("S.A.P: "),"Sociedad Anónima Profesional." ,tags$br(),),
+                                                        tags$li(tags$b("S.A.D: "),"Sociedad Anónima Deportiva." ,tags$br(),),
+                                                        tags$li(tags$b("S.C: "),"Sociedad Colectiva." ,tags$br(),),
+                                                        tags$li(tags$b("S.C.P: "),"Sociedad Civil Privada." ,tags$br(),),
+                                                        tags$li(tags$b("S. Coop: "),"Sociedad Cooperativa.." ,tags$br(),),
+                                                        tags$li(tags$b("S.Com: "),"Sociedad Comanditaria Simple." ,tags$br(),),
+                                                        tags$li(tags$b("A.I.E: "),"Agrupación de Interés Económico." ,tags$br(),tags$br(),),
+                                                      ),
+                                             ),
+                                             tags$h4(tags$b("FONTS D’INFORMACIÓ")),
+                                             tags$div(style = "font-size: 16px;",
+                                                      tags$a(href="https://www.boe.es/diario_borme/", target="_blank", "BORME"),tags$br(),
+                                                      tags$a(href="https://observatoritreball.gencat.cat/ca/ambits_tematics/relacions_laborals/regulacio_ocupacio/", target="_blank","Regulació temporal d'ocupació"),tags$br(),tags$br()
+                                             ),
+                                             tags$div(
+                                               "----",tags$br(),tags$br(),
+                                               "Web app desenvolupada amb la colaboració de ",tags$a(href="https://techfriendly.es", target="_blank","TECH friendly"), ".",tags$br(), tags$br(),
+                                             )
+                                    )
+                           )
                 ) # Cierre navbarPage
 ) # Cierre UI
 
@@ -546,7 +654,7 @@ server <- function(input, output, session) {
       
       if(fecha_final - fecha_inicial < 32){
         progress <- Progress$new(session)
-        progress$set(value = 0.5, message = 'Cargando datos...')
+        progress$set(value = 0.5, message = 'Carregant dades...')
         #datos$borme = llamada_api(as.character(input$fechas_listado_borme[1]), as.character(input$fechas_listado_borme[2]))
 
         fecha_1 <- format(as.Date(fecha_inicial),"%d/%m/%Y")
@@ -567,7 +675,7 @@ server <- function(input, output, session) {
         avance_barra <- rescale(long,c(0.2,1.0))
         df <- data.frame(NULL)
         for(i in long){
-          progress$set(value = avance_barra[i], message = 'Cargando datos...')
+          progress$set(value = avance_barra[i], message = 'Carregant dades...')
           if(i == 1){
             month(fecha_ini_consulta) <- month(fecha_fin_consulta)-1
           }else if(i == num_meses){
@@ -667,6 +775,10 @@ server <- function(input, output, session) {
 
 
         #Generación forma jurídica
+        progress <- Progress$new(session)
+        long <- 1:2
+        avance_barra <- rescale(long,c(0.5,1.0))
+        progress$set(value = 0.5, message = 'Processant dades...')
         forma_juridica <- c()
         for(i in 1:length(datos_borme$Empresa)){
             pos_ultimo_espacio <- gregexpr(" ",datos_borme$Empresa[i])[[1]][length(gregexpr(" ",datos_borme$Empresa[i])[[1]])]
@@ -676,12 +788,18 @@ server <- function(input, output, session) {
                 pos_ultimo_espacio <- gregexpr(" ",nuevo_nombre)[[1]][length(gregexpr(" ",nuevo_nombre)[[1]])]
                 forma_juridica1 <- str_trim(substring(nuevo_nombre,pos_ultimo_espacio,nchar(nuevo_nombre)))
 
-                if(nchar(forma_juridica1) > 3){
+                if(nchar(forma_juridica1) > 3 | nchar(forma_juridica1) == 1){
                     forma_juridica1 <- "Otras"
                 }
+            }else{
+              if(nchar(gsub("\\.","",forma_juridica1)) > 2 & all(gsub("\\.","",forma_juridica1) != c("AIE","OMS","SAD","SAL","SAP","SCP","SLL","SLP"))){
+                forma_juridica1 <- "Otras"
+              }
             }
             forma_juridica <- c(forma_juridica, forma_juridica1)
         }
+        progress$set(value = 1, message = 'Processant dades...')
+        progress$close()
 
         datos_borme$`Forma Jurídica` <- gsub("\\.","",forma_juridica)
 
