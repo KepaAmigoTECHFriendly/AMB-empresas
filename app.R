@@ -240,7 +240,8 @@ ui <- fluidPage(style = "width: 100%; height: 100%;",
                 titlePanel(title=div(
                   a(href="http://www.amb.cat/",
                     img(src="img/AMB_logo.jpg",style = 'width: 150px; high: 600px;')
-                  )
+                  ),
+                  p("Plataforma d'indicadors empresarials",style = 'font-size:33px; margin-left: 25px; display: inline;'),
                   )),
                 
                 tags$script('
@@ -253,7 +254,7 @@ ui <- fluidPage(style = "width: 100%; height: 100%;",
                   });
                 '),
                 
-                navbarPage(id ="menu", "Menú empreses",
+                navbarPage(id ="menu", NULL,
                            
                            #=============================
                            # SOBRE LA PÁGINA
