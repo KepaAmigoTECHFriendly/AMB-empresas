@@ -239,12 +239,19 @@ ui <- fluidPage(style = "width: 100%; height: 100%;",
                 
                 titlePanel(title=div(
                   a(href="http://www.amb.cat/",
-                    img(src="img/AMB_logo.png",style = 'width: 300px; high: 600px;')
+                    img(src="img/AMB_logo.jpg",style = 'width: 150px; high: 600px;')
                   )
                   )),
                 
-                
-                
+                tags$script('
+                  $(document).ready(function(){
+                    
+                    $("#fechas_listado_borme input").bsDatepicker({
+                      autoclose: true
+                    });
+                    $("#fechas_listado_borme").attr("onkeydown", "return false");
+                  });
+                '),
                 
                 navbarPage(id ="menu", "Menú empreses",
                            
@@ -257,15 +264,15 @@ ui <- fluidPage(style = "width: 100%; height: 100%;",
                                              tags$div(
                                                tags$h4(tags$b("PRESENTACIÓ")),
                                                tags$div(style = "font-size: 16px;",
-                                                        "L’Àrea de Desenvolupament Social i Econòmic de l’Àrea Metropolitana de Barcelona crea aquesta aplicació MAPA OCUPACIONAL DE L’ÀREA METROPOLITANA DE BARCELONA amb l’objectiu de disposar d’informació actualitzada sobre la situació i evolució del mercat de treball i l’oferta de serveis disponible per a donar suport a la planificació i la implementació de polítiques d’ocupació en el territori, així com als serveis d’orientació i inserció municipals.", tags$br(),tags$br(),
-                                                        "Si bé la informació està disponible en fonts diverses, amb aquesta eina hem volgut aglutinar-la per fer-la més accessible i facilitar la seva visualització amb mapes de geolocalització i amb informes gràfics interactius i de relacions entre variables relatives al mercat de treball.  ",tags$br(),tags$br(),
+                                                        "Amb la seva voluntat d’oferir nous serveis als municipis metropolitans, ", tags$b("l’Agència de Desenvolupament Econòmic de l’AMB")," ha generat la PLATAFORMA D’INDICADORS EMPRESARIALS, una nova eina que es posa a l’abast de les àrees de Promoció Econòmica i suport a les empreses i emprenedoria per tal de que puguin disposar d’informació detallada i actualitzada, que doni suport a l’anàlisi i a la pressa de decisions per obtenir resultats més eficients. Aquestes dades es presenten de forma aclaridora un cop analitzades les publicacions del Butlletí Oficial del Registre Mercantil (BORME).", tags$br(),tags$br(),
+                                                        "Amb la compilació diària de la informació disponible, les persones usuàries podran disposar de les dades de constitució, canvis o dissolucions de les empreses i societats, tant des de l’àmbit metropolità com en els propis municipis: la Plataforma permetrà conèixer qualsevol modificació registrada a l’entramat empresarial del territori referenciat, així com l’evolució d’aquests canvis, disposant tant d’informació específica per qüestions de contacte o localització com de dades generals i estadístiques que permeten poder comparar diferents territoris i temps. També indica la situació en matèria dels recursos humans, fent seguiment dels expedients de regulació d’ocupació (ERTO), generats per la situació actual.",tags$br(),tags$br(),
                                                         "Tanmateix, generada des d’una visió metropolitana del mercat de treball, l’aplicació ens aporta informació sobre el conjunt del territori metropolità, sobre cadascun dels 36 municipis que l’integren i sobre àmbits territorials superiors, i ens permet realitzar comparatives entre àmbits seleccionats. ",tags$br(),tags$br(),
                                                         "Mitjançant la utilització de tècniques d’intel·ligència artificial, la descàrrega periòdica de dades es fa de forma automatitzada, restant disponibles dins l’aplicació perquè l’usuari o usuària final en faci el tractament que en cada cas sigui més adient. ",tags$br(),tags$br(),
                                                ),
                                                
                                                tags$h4(tags$b("CORREU ELECTRÒNIC DE CONTACTE")), 
                                                tags$div(style = "font-size: 16px;",
-                                                        tags$a(href="mailto:vmalvarez@amb.cat", "vmalvarez@amb.cat"), tags$br(), tags$br(),
+                                                        tags$a(href="mailto:serveisempresa@amb.cat", "serveisempresa@amb.cat"), tags$br(), tags$br(),
                                                ),
                                                
                                                tags$h4(tags$b("PERÍODE DE DISPONIBILITAT I FREQÜÈNCIA D’ACTUALITZACIÓ DE LES DADES")),
@@ -290,7 +297,7 @@ ui <- fluidPage(style = "width: 100%; height: 100%;",
                                         selectInput("Municipio_comparaciones", "Seleccioneu el municipio de comparació",
                                                     municipios$Municipio[municipios$AMB == 1]),
                                         
-                                        dateRangeInput("fechas_listado_borme","Seleccioneu el intervalo de dates",start = "2020-03-01", end = "2020-03-15"),
+                                        dateRangeInput("fechas_listado_borme","Seleccioneu el intervalo de dates",start = Sys.Date()-months(3), end = Sys.Date()),
                                         
                                         checkboxGroupInput("variables_borme_listado", label = "Selección variables",
                                                            choices = list("Constitució" = 1,
@@ -343,7 +350,7 @@ ui <- fluidPage(style = "width: 100%; height: 100%;",
                                                                       dataTableOutput("tabla_borme_eb1"),
                                                              ),
                                                              fluidRow(
-                                                               column(width = 9,
+                                                               column(width = 10,
                                                                       plotlyOutput("barras_borme_eb1", height = 400)
                                                                )
                                                                
@@ -359,8 +366,8 @@ ui <- fluidPage(style = "width: 100%; height: 100%;",
                                                                       dataTableOutput("tabla_borme_eb2"),
                                                              ),
                                                              fluidRow(
-                                                               column(width = 9,
-                                                                      plotlyOutput("lineas_borme_eb2", height = 400)
+                                                               column(width = 11,
+                                                                      plotlyOutput("lineas_borme_eb2", height = 500)
                                                                )
                                                                
                                                              ),
@@ -375,15 +382,15 @@ ui <- fluidPage(style = "width: 100%; height: 100%;",
                                                                       dataTableOutput("tabla_borme_capital"),
                                                              ),
                                                              fluidRow(
-                                                               column(width = 9,
-                                                                      plotlyOutput("lineas_borme_capital_ampliaciones", height = 400),
+                                                               column(width = 11,
+                                                                      plotlyOutput("lineas_borme_capital_ampliaciones", height = 500),
                                                                       br()
                                                                )
                                                                
                                                              ),
                                                              fluidRow(
-                                                               column(width = 9,
-                                                                      plotlyOutput("lineas_borme_capital_reducciones", height = 400)
+                                                               column(width = 11,
+                                                                      plotlyOutput("lineas_borme_capital_reducciones", height = 500)
                                                                )
                                                                
                                                              ),
@@ -494,12 +501,12 @@ ui <- fluidPage(style = "width: 100%; height: 100%;",
                            #=============================
                            # Notas Metodológicas
                            #=============================
-                           tabPanel("Notes metodòlogiques",
+                           tabPanel("Glossari",
                                     fluidRow(style = "margin-left: 50px; margin-right: 60px; margin-bottom: 200px;",
                                              tags$div(
                                                tags$h4(tags$b("Glossari BORME")),
                                                tags$div(style = "font-size: 16px;",
-                                                        "BORME: Butlletí Oficial de l'Registre Mercantil. Butlletí oficial on es publiquen la totalitat d'actes jurídics de les entitats mercantils o societats mercantils d'Espanya, que per disposició legal han de donar-se a coneixement públic.",tags$br(),
+                                                        "BORME: Butlletí Oficial del Registre Mercantil. Butlletí oficial on es publiquen la totalitat d'actes jurídics de les entitats mercantils o societats mercantils d'Espanya, que per disposició legal han de donar-se a coneixement públic.",tags$br(),
                                                         tags$ul(
                                                           tags$li(
                                                             tags$b("Constitució: "),"Creació formal d'una empresa per començar les seves operacions, adquirint, al seu torn, personalitat jurídica. Els actes jurídics publicats amb la constitució de la societat són: Començament d'operacions, Objecte social, Domicili social i Capital." ,tags$br(),
@@ -568,6 +575,10 @@ ui <- fluidPage(style = "width: 100%; height: 100%;",
                                                "Web app desenvolupada amb la colaboració de ",tags$a(href="https://techfriendly.es", target="_blank","TECH friendly"), ".",tags$br(), tags$br(),
                                              )
                                     )
+                           ),
+                           tags$style(type = 'text/css',
+                                      '.dataTables_scrollBody {transform:rotateX(180deg);}',
+                                      '.dataTables_scrollBody table {transform:rotateX(180deg);}'
                            )
                 ) # Cierre navbarPage
 ) # Cierre UI
