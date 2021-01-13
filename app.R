@@ -119,65 +119,23 @@ lista_variables_borme <- list(uno,dos,tres,cuatro,cinco,seis,siete,ocho,nueve,di
 names(lista_variables_borme) <- c("uno","dos","tres","cuatro","cinco","seis","siete","ocho","nueve","diez","cuatro_uno","cuatro_dos")
 
 
-
-# =======================
-# ERTES
-# =======================
-
-# Carga datos
-df_tipo_expediente <- read.xlsx(xlsxFile = "publicacio_erto_01072020.xlsx", sheet = 6, skipEmptyRows = TRUE)
+#===========================
+# Referencia de ERTOS
+#===========================
 df_expediente_econom <- read.xlsx(xlsxFile = "publicacio_erto_01072020.xlsx", sheet = 7, skipEmptyRows = TRUE)
-df_expediente_trabajo <- read.xlsx(xlsxFile = "publicacio_erto_01072020.xlsx", sheet = 8, skipEmptyRows = TRUE)
-
 # Eliminar fila 1, informativa
-df_tipo_expediente <- df_tipo_expediente[-1,]
 df_expediente_econom <- df_expediente_econom[-1,]
-df_expediente_trabajo <- df_expediente_trabajo[-1,]
 
 # Asignación nombre columnas
-colnames(df_tipo_expediente) <- df_tipo_expediente[2,]
 colnames(df_expediente_econom) <- df_expediente_econom[1,]
-colnames(df_expediente_trabajo) <- df_expediente_trabajo[1,]
 
 # Eliminar fila 1, es la misma que nombre columnas
-df_tipo_expediente <- df_tipo_expediente[-2,]
 df_expediente_econom <- df_expediente_econom[-1,]
-df_expediente_trabajo <- df_expediente_trabajo[-1,]
 
-# Trataimiento df expedientes
-colnames(df_tipo_expediente)[4] <- paste(colnames(df_tipo_expediente)[4],df_tipo_expediente[1,4],sep = " ")
-colnames(df_tipo_expediente)[6] <- paste(colnames(df_tipo_expediente)[6],df_tipo_expediente[1,6],sep = " ")
-colnames(df_tipo_expediente)[8] <- paste(colnames(df_tipo_expediente)[8],df_tipo_expediente[1,8],sep = " ")
-df_tipo_expediente <- df_tipo_expediente[-1,]
-
-# Otros tratamientos
-for(i in 4:9){
-  df_tipo_expediente[,i] <- as.numeric(df_tipo_expediente[,i])
-}
-df_tipo_expediente <- df_tipo_expediente[-grep("Catalunya",df_tipo_expediente$Comarca),]
 for(i in 4:26){
   df_expediente_econom[,i] <- as.numeric(df_expediente_econom[,i])
 }
 df_expediente_econom <- df_expediente_econom[-grep("Catalunya",df_expediente_econom$Comarca),]
-for(i in 4:26){
-  df_expediente_trabajo[,i] <- as.numeric(df_expediente_trabajo[,i])
-}
-df_expediente_trabajo <- df_expediente_trabajo[-grep("Catalunya",df_expediente_trabajo$Comarca),]
-
-
-# Creación columna M. Columna de integración de datos municipios de otros datasets
-df_tipo_expediente$M <- df_tipo_expediente$Municipi %>%
-  gsub(", els","",.) %>%
-  gsub("els ","",.) %>%
-  gsub(", la","",.) %>%
-  gsub(", el","",.) %>%
-  gsub("el ","",.) %>%
-  gsub(", les","",.) %>%
-  gsub("les ","",.) %>%
-  gsub("la ","",.) %>%
-  gsub(", l'","",.) %>%
-  gsub("l'","",.) %>%
-  gsub(", l","",.)
 
 df_expediente_econom$M <- df_expediente_econom$Municipi %>%
   gsub(", els","",.) %>%
@@ -192,31 +150,11 @@ df_expediente_econom$M <- df_expediente_econom$Municipi %>%
   gsub("l'","",.) %>%
   gsub(", l","",.)
 
-df_expediente_trabajo$M <- df_expediente_trabajo$Municipi %>%
-  gsub(", els","",.) %>%
-  gsub("els ","",.) %>%
-  gsub(", la","",.) %>%
-  gsub(", el","",.) %>%
-  gsub("el ","",.) %>%
-  gsub(", les","",.) %>%
-  gsub("les ","",.) %>%
-  gsub("la ","",.) %>%
-  gsub(", l'","",.) %>%
-  gsub("l'","",.) %>%
-  gsub(", l","",.)
-
-
 #AMB
-df_tipo_expediente$AMB <- municipios_ertes$AMB[match(df_tipo_expediente$M, municipios_ertes$M)]
 df_expediente_econom$AMB <- municipios_ertes$AMB[match(df_expediente_econom$M, municipios_ertes$M)]
-df_expediente_trabajo$AMB <- municipios_ertes$AMB[match(df_expediente_trabajo$M, municipios_ertes$M)]
 
 # SIMULACIÓN FECHA ***************
-df_tipo_expediente$fecha <- rep("2020-08-01",nrow(df_tipo_expediente))
 df_expediente_econom$fecha <- rep("2020-08-01",nrow(df_expediente_econom))
-df_expediente_trabajo$fecha <- rep("2020-08-01",nrow(df_expediente_trabajo))
-
-
 
 
 #=====================================================
@@ -590,7 +528,7 @@ ui <- fluidPage(style = "width: 100%; height: 100%;",
 
 server <- function(input, output, session) {
     
-    datos <- reactiveValues(borme=NULL)
+    datos <- reactiveValues(borme=NULL,fechas_actual=c(0,0),ertes_expedientes=NULL,ertes_econom=NULL,ertes_econom_trabajadores=NULL)
     
 
     ###############################################
@@ -656,6 +594,7 @@ server <- function(input, output, session) {
       }
     })
     
+    # Carga de datos BORME BBDD
     observeEvent(input$fechas_listado_borme, {
       print("Entro fechas")
       #show_spinner() # show the spinner
@@ -664,75 +603,135 @@ server <- function(input, output, session) {
       fecha_inicial <- input$fechas_listado_borme[1]
       fecha_final <- input$fechas_listado_borme[2]
       
-      if(fecha_final - fecha_inicial < 32){
-        progress <- Progress$new(session)
-        progress$set(value = 0.5, message = 'Carregant dades...')
-        #datos$borme = llamada_api(as.character(input$fechas_listado_borme[1]), as.character(input$fechas_listado_borme[2]))
+      # Evita volver a cargar los datos en caso de seleccionar nuevas fechas comprendidas en las antiguas
+      if(fecha_inicial < datos$fechas_actual[1] | fecha_final > datos$fechas_actual[2]){
 
-        fecha_1 <- format(as.Date(fecha_inicial),"%d/%m/%Y")
-        fecha_2 <- format(as.Date(fecha_final),"%d/%m/%Y")
-        
-        datos$borme <- dbGetQuery(con,paste("SELECT * FROM borme WHERE TO_DATE(fecha, 'DD/MM/YYYY') >= TO_DATE('",fecha_1,"', 'DD/MM/YYYY') AND TO_DATE(fecha, 'DD/MM/YYYY') <= TO_DATE('",fecha_2,"', 'DD/MM/YYYY')" ,sep = ""))
-        
-        progress$close()
-      }else{
-        num_meses <- floor(12*as.double(difftime(fecha_final,fecha_inicial))/365)
-        num_meses <- ifelse(num_meses == 0,1,num_meses)
-        
-        #datos$borme = llamada_api(as.character(input$fechas_listado_borme[1]), as.character(input$fechas_listado_borme[2]))
-        fecha_ini_consulta <- fecha_inicial
-        fecha_fin_consulta <- fecha_final
-        progress <- Progress$new(session)
-        long <- 1:num_meses
-        avance_barra <- rescale(long,c(0.2,1.0))
-        df <- data.frame(NULL)
-        for(i in long){
-          progress$set(value = avance_barra[i], message = 'Carregant dades...')
-          if(i == 1){
-            month(fecha_ini_consulta) <- month(fecha_fin_consulta)-1
-          }else if(i == num_meses){
-            fecha_fin_consulta <- fecha_ini_consulta-1
-            fecha_ini_consulta <- fecha_inicial
-            
-          }else{
-            fecha_fin_consulta <- fecha_ini_consulta-1
-            month(fecha_ini_consulta) <- month(fecha_ini_consulta)-1
-          }
-
-          #df_mes <- llamada_api(as.character(fecha_ini_consulta), as.character(fecha_fin_consulta))
-          fecha_inicial_2 <- as.Date(fecha_ini_consulta)
-          fecha_final_2 <- as.Date(fecha_fin_consulta)
-          fecha_1 <- format(as.Date(fecha_inicial_2),"%d/%m/%Y")
-          fecha_2 <- format(as.Date(fecha_final_2),"%d/%m/%Y")
-          
-          df_mes <- dbGetQuery(con,paste("SELECT * FROM borme WHERE TO_DATE(fecha, 'DD/MM/YYYY') >= TO_DATE('",fecha_1,"', 'DD/MM/YYYY') AND TO_DATE(fecha, 'DD/MM/YYYY') <= TO_DATE('",fecha_2,"', 'DD/MM/YYYY')" ,sep = ""))
-          
-          df <- rbind(df,df_mes)
-        }
-        datos$borme = df
-        progress$close()
-      }
+        datos$fechas_actual <- c(fecha_inicial,fecha_final)
       
-      #remove_modal_spinner() # remove it when done
-      #hide_spinner() # hide the spinner
-      print("LLEGO 1")
+        if(fecha_final - fecha_inicial < 32){
+          progress <- Progress$new(session)
+          progress$set(value = 0.5, message = 'Carregant dades...')
+          #datos$borme = llamada_api(as.character(input$fechas_listado_borme[1]), as.character(input$fechas_listado_borme[2]))
+  
+          fecha_1 <- format(as.Date(fecha_inicial),"%d/%m/%Y")
+          fecha_2 <- format(as.Date(fecha_final),"%d/%m/%Y")
+          
+          datos$borme <- dbGetQuery(con,paste("SELECT * FROM borme WHERE TO_DATE(fecha, 'DD/MM/YYYY') >= TO_DATE('",fecha_1,"', 'DD/MM/YYYY') AND TO_DATE(fecha, 'DD/MM/YYYY') <= TO_DATE('",fecha_2,"', 'DD/MM/YYYY')" ,sep = ""))
+          
+          progress$close()
+        }else{
+          num_meses <- floor(12*as.double(difftime(fecha_final,fecha_inicial))/365)
+          num_meses <- ifelse(num_meses == 0,1,num_meses)
+          
+          #datos$borme = llamada_api(as.character(input$fechas_listado_borme[1]), as.character(input$fechas_listado_borme[2]))
+          fecha_ini_consulta <- fecha_inicial
+          fecha_fin_consulta <- fecha_final
+          progress <- Progress$new(session)
+          long <- 1:num_meses
+          avance_barra <- rescale(long,c(0.2,1.0))
+          df <- data.frame(NULL)
+          for(i in long){
+            progress$set(value = avance_barra[i], message = 'Carregant dades...')
+            if(i == 1){
+              month(fecha_ini_consulta) <- month(fecha_fin_consulta)-1
+            }else if(i == num_meses){
+              fecha_fin_consulta <- fecha_ini_consulta-1
+              fecha_ini_consulta <- fecha_inicial
+              
+            }else{
+              fecha_fin_consulta <- fecha_ini_consulta-1
+              month(fecha_ini_consulta) <- month(fecha_ini_consulta)-1
+            }
+  
+            #df_mes <- llamada_api(as.character(fecha_ini_consulta), as.character(fecha_fin_consulta))
+            fecha_inicial_2 <- as.Date(fecha_ini_consulta)
+            fecha_final_2 <- as.Date(fecha_fin_consulta)
+            fecha_1 <- format(as.Date(fecha_inicial_2),"%d/%m/%Y")
+            fecha_2 <- format(as.Date(fecha_final_2),"%d/%m/%Y")
+            
+            df_mes <- dbGetQuery(con,paste("SELECT * FROM borme WHERE TO_DATE(fecha, 'DD/MM/YYYY') >= TO_DATE('",fecha_1,"', 'DD/MM/YYYY') AND TO_DATE(fecha, 'DD/MM/YYYY') <= TO_DATE('",fecha_2,"', 'DD/MM/YYYY')" ,sep = ""))
+            
+            df <- rbind(df,df_mes)
+          }
+          datos$borme = df
+          progress$close()
+        }
+      }
     })
     
-
-    #Selección de 2 meses mínimo para tab estadística básica 2
-    #observeEvent(input$tabs_borme, {
-    #  if(input$tabs_borme == "Estadística básica 2"){
-    #    fecha_inicial <- Sys.Date()
-    #    fecha_final <- Sys.Date()
-    #    day(fecha_inicial) <- day(fecha_inicial)-(day(fecha_inicial)-1)  #día a 1
-    #    month(fecha_inicial) <- month(fecha_inicial)-2  #menos 2 meses
-    #    day(fecha_final) <- day(fecha_final)-(day(fecha_final)-1)  #día a 1
-    #        updateDateRangeInput(session, "fechas_listado_borme",
-    #                         start = fecha_inicial,
-    #                         end = fecha_final
-    #    )
-    #  }
-    #})
+    
+    # Carga de datos ERTOS BBDD
+    observeEvent(input$fechas_listado_ertes, {
+      print("Entro fechas")
+      #show_spinner() # show the spinner
+      #show_modal_spinner() # show the modal window
+      
+      progress <- Progress$new(session)
+      progress$set(value = 0.5, message = 'Carregant dades...')
+      
+      fecha_inicial <- input$fechas_listado_ertes[1]
+      fecha_final <- input$fechas_listado_ertes[2]
+      
+      fecha_1 <- as.Date(fecha_inicial)
+      fecha_2 <- as.Date(fecha_final)
+      
+      df_tipo_expediente <- dbGetQuery(con,paste("SELECT * FROM tipo_expediente WHERE fecha >= TO_DATE('",fecha_1,"', 'YYYY/MM/DD') AND fecha <= TO_DATE('",fecha_2,"', 'YYYY/MM/DD')" ,sep = ""))
+      df_expediente_econom <- dbGetQuery(con,paste("SELECT * FROM expediente_econom WHERE fecha >= TO_DATE('",fecha_1,"', 'YYYY/MM/DD') AND fecha <= TO_DATE('",fecha_2,"', 'YYYY/MM/DD')" ,sep = ""))
+      df_expediente_trabajo <- dbGetQuery(con,paste("SELECT * FROM trabajadores_econom WHERE fecha >= TO_DATE('",fecha_1,"', 'YYYY/MM/DD') AND fecha <= TO_DATE('",fecha_2,"', 'YYYY/MM/DD')" ,sep = ""))
+      
+      # Creación columna M. Columna de integración de datos municipios de otros datasets
+      df_tipo_expediente$M <- df_tipo_expediente$Municipi %>%
+        gsub(", els","",.) %>%
+        gsub("els ","",.) %>%
+        gsub(", la","",.) %>%
+        gsub(", el","",.) %>%
+        gsub("el ","",.) %>%
+        gsub(", les","",.) %>%
+        gsub("les ","",.) %>%
+        gsub("la ","",.) %>%
+        gsub(", l'","",.) %>%
+        gsub("l'","",.) %>%
+        gsub(", l","",.)
+      
+      df_expediente_econom$M <- df_expediente_econom$Municipi %>%
+        gsub(", els","",.) %>%
+        gsub("els ","",.) %>%
+        gsub(", la","",.) %>%
+        gsub(", el","",.) %>%
+        gsub("el ","",.) %>%
+        gsub(", les","",.) %>%
+        gsub("les ","",.) %>%
+        gsub("la ","",.) %>%
+        gsub(", l'","",.) %>%
+        gsub("l'","",.) %>%
+        gsub(", l","",.)
+      
+      df_expediente_trabajo$M <- df_expediente_trabajo$Municipi %>%
+        gsub(", els","",.) %>%
+        gsub("els ","",.) %>%
+        gsub(", la","",.) %>%
+        gsub(", el","",.) %>%
+        gsub("el ","",.) %>%
+        gsub(", les","",.) %>%
+        gsub("les ","",.) %>%
+        gsub("la ","",.) %>%
+        gsub(", l'","",.) %>%
+        gsub("l'","",.) %>%
+        gsub(", l","",.)
+      
+      #AMB
+      df_tipo_expediente$AMB <- municipios_ertes$AMB[match(df_tipo_expediente$M, municipios_ertes$M)]
+      df_expediente_econom$AMB <- municipios_ertes$AMB[match(df_expediente_econom$M, municipios_ertes$M)]
+      df_expediente_trabajo$AMB <- municipios_ertes$AMB[match(df_expediente_trabajo$M, municipios_ertes$M)]
+      
+      datos$ertes_expedientes = df_tipo_expediente
+      datos$ertes_econom = df_expediente_econom
+      datos$ertes_econom_trabajadores = df_expediente_trabajo
+      
+      progress$close()
+    })
+    
+    
 
 
 
@@ -788,11 +787,11 @@ server <- function(input, output, session) {
 
         #Generación forma jurídica
         progress <- Progress$new(session)
-        long <- 1:2
-        avance_barra <- rescale(long,c(0.5,1.0))
-        progress$set(value = 0.5, message = 'Processant dades...')
+        long <- 1:length(datos_borme$Empresa)
+        avance_barra <- rescale(long,c(0.01,1.0))
         forma_juridica <- c()
         for(i in 1:length(datos_borme$Empresa)){
+            progress$set(value = avance_barra[i], message = 'Processant dades...')
             pos_ultimo_espacio <- gregexpr(" ",datos_borme$Empresa[i])[[1]][length(gregexpr(" ",datos_borme$Empresa[i])[[1]])]
             forma_juridica1 <- str_trim(substring(datos_borme$Empresa[i],pos_ultimo_espacio,nchar(datos_borme$Empresa[i])))
             if(nchar(forma_juridica1) > 3){
@@ -841,7 +840,12 @@ server <- function(input, output, session) {
     # 1) Filtrado datos BORME
     datos_filtrados_borme <- reactive({
 
-        df <- datos_estructurados_borme()  #Llamada a API
+        df <- datos_estructurados_borme() 
+        
+        fecha_inicial <-input$fechas_listado_borme[1]
+        fecha_final <- input$fechas_listado_borme[2]
+        
+        df <- df[as.Date(df$Data, format="%d/%m/%Y") >= fecha_inicial & as.Date(df$Data, format="%d/%m/%Y") <= fecha_final,]
         
         if(df == 0){
           return(0)
@@ -1325,10 +1329,15 @@ server <- function(input, output, session) {
                  "Atenció!\nNo existeixen dades disponibles pel valor dels filtres seleccionats.\nModifiqueu el valor dels filtres si ho desitja.")
         )
         #Límite visualización registros tabla
-        tabla <- datatable(df_tabla, options = list(pageLength = 5,
+        tabla <- datatable(df_tabla, extensions = c('Buttons'), options = list(pageLength = 5,
                                                     columnDefs = list(list(className = 'dt-center', targets = "_all")),
                                                     scrollX=TRUE,
-                                                    scrollCollapse=TRUE),
+                                                    scrollCollapse=TRUE,
+                                                    dom = 'lBfrtip', 
+                                                    buttons = list(list(extend ='copy'), 
+                                                                   list(extend ='csv'), 
+                                                                   list(extend ='excel'), list(extend = "pdf", text = "PDF", title = NULL))
+        ),
                            escape = FALSE)
 
         return(tabla)
@@ -1360,10 +1369,15 @@ server <- function(input, output, session) {
         }
 
         #Límite visualización registros tabla
-        tabla <- datatable(df_tabla, options = list(pageLength = 5,
+        tabla <- datatable(df_tabla, extensions = c('Buttons'), options = list(pageLength = 5,
                                                     columnDefs = list(list(className = 'dt-center', targets = "_all")),
                                                     scrollX=TRUE,
-                                                    scrollCollapse=TRUE),
+                                                    scrollCollapse=TRUE,
+                                                    dom = 'lBfrtip', 
+                                                    buttons = list(list(extend ='copy'), 
+                                                                   list(extend ='csv'), 
+                                                                   list(extend ='excel'), list(extend = "pdf", text = "PDF", title = NULL))
+        ),
                            escape = FALSE)
         return(tabla)
     },options = list(scrollX = T))
@@ -1387,10 +1401,15 @@ server <- function(input, output, session) {
         )
         
         #Límite visualización registros tabla
-        tabla <- datatable(df, options = list(pageLength = 25,
+        tabla <- datatable(df, extensions = c('Buttons'),options = list(pageLength = 25,
                                                     columnDefs = list(list(className = 'dt-center', targets = "_all")),
                                                     scrollX=TRUE,
-                                                    scrollCollapse=TRUE),
+                                                    scrollCollapse=TRUE,
+                                                    dom = 'lBfrtip', 
+                                                    buttons = list(list(extend ='copy'), 
+                                                                   list(extend ='csv'), 
+                                                                   list(extend ='excel'), list(extend = "pdf", text = "PDF", title = NULL))
+        ),
                            escape = FALSE)
         return(tabla)
     },options = list(scrollX = T))
@@ -1418,10 +1437,15 @@ server <- function(input, output, session) {
       }
       
       #Límite visualización registros tabla
-      tabla <- datatable(df_tabla, options = list(pageLength = 5,
+      tabla <- datatable(df_tabla, extensions = c('Buttons'), options = list(pageLength = 5,
                                                   columnDefs = list(list(className = 'dt-center', targets = "_all")),
                                                   scrollX=TRUE,
-                                                  scrollCollapse=TRUE),
+                                                  scrollCollapse=TRUE,
+                                                  dom = 'lBfrtip', 
+                                                  buttons = list(list(extend ='copy'), 
+                                                                 list(extend ='csv'), 
+                                                                 list(extend ='excel'), list(extend = "pdf", text = "PDF", title = NULL))
+      ),
                          escape = FALSE)
       return(tabla)
     })
@@ -1677,11 +1701,16 @@ server <- function(input, output, session) {
       df <- ayuda_borme_capital()
 
       #Límite visualización registros tabla
-      tabla <- datatable(df, options = list(pageLength = 5,
+      tabla <- datatable(df, extensions = c('Buttons'), options = list(pageLength = 5,
                                                   columnDefs = list(list(className = 'dt-center', targets = "_all")),
                                                   scrollX=TRUE,
-                                                  scrollCollapse=TRUE),
-                         escape = FALSE)
+                                                  scrollCollapse=TRUE,
+                                                  dom = 'lBfrtip', 
+                                                  buttons = list(list(extend ='copy'), 
+                                                                 list(extend ='csv'), 
+                                                                 list(extend ='excel'), list(extend = "pdf", text = "PDF", title = NULL))
+                                                  ),
+                         escape = TRUE)
       return(tabla)
     },options = list(scrollX = T))
   
@@ -1909,7 +1938,8 @@ server <- function(input, output, session) {
       
       df_filtrados <- datos_filtrados_borme()
       
-      df_filtrados <- df_filtrados[as.numeric(df_filtrados$Latitud) > 41.13,]
+      df_filtrados <- df_filtrados[as.numeric(df_filtrados$Latitud) > 41.13 & as.numeric(df_filtrados$Latitud) < 42.32
+                                   & as.numeric(df_filtrados$Longitud) < 3.4 & as.numeric(df_filtrados$Longitud) > 0,]
       
       shiny::validate(
         need(nrow(na.omit(df_filtrados)) != 0,
@@ -2067,14 +2097,15 @@ server <- function(input, output, session) {
     # 1) Filtros
     datos_filtrados_ertes_expedientes <- reactive({
       
-      df <- df_tipo_expediente
+      df <- datos$ertes_expedientes
    
       # 1) Filtro por fecha
-      fecha_inicial <- as.Date(paste(substring(as.character(input$fechas_listado_ertes[1]),1,8),"01",sep = ""))
-      fecha_final <- as.Date(paste(substring(as.character(input$fechas_listado_ertes[2]),1,8), "28",sep = ""))
-      df <- df[df$fecha >= fecha_inicial & df$fecha <= fecha_final,]
+      #fecha_inicial <- as.Date(paste(substring(as.character(input$fechas_listado_ertes[1]),1,8),"01",sep = ""))
+      #fecha_final <- as.Date(paste(substring(as.character(input$fechas_listado_ertes[2]),1,8), "28",sep = ""))
+      df <- df[df$fecha >= input$fechas_listado_ertes[1] & df$fecha <= input$fechas_listado_ertes[2],]
       
       df$provincia <- municipios_ertes$Provincia[match(df$M, municipios_ertes$M)]
+      
       
       # 2) Filtro territorio
       if(input$Municipio_principal_ertes == "Barcelona província"){
@@ -2112,14 +2143,14 @@ server <- function(input, output, session) {
         )
       }
       
+      df <- na.omit(df)
+      
       #3) Filtro expedientes/personas
       if(input$variables_ertes == 1){  # 1 corresponde a expedientes
-        df <- df[,c(3,4,6,8,11,12)]
+        df <- df[,c(3,4,6,7,8,9,10,11,16)]
       }else{
-        df <- df[,c(3,5,7,9,11,12)]
+        df <- df[,c(3,12,13,14,15,16)]
       }
-      
-      df <- df[c(1:949),]
       
       #Gestión errores
       if(nrow(df) == 0){
@@ -2134,15 +2165,15 @@ server <- function(input, output, session) {
       
       #1) Filtro expedientes/personas. Selección de un df u otro.
       if(input$variables_ertes == 1){  # 1 corresponde a expedientes
-        df <- df_expediente_econom
+        df <- datos$ertes_econom
       }else{
-        df <- df_expediente_trabajo
+        df <- datos$ertes_econom_trabajadores
       }
       
       # 2) Filtro por fecha
-      fecha_inicial <- as.Date(paste(substring(as.character(input$fechas_listado_ertes[1]),1,8),"01",sep = ""))
-      fecha_final <- as.Date(paste(substring(as.character(input$fechas_listado_ertes[2]),1,8), "28",sep = ""))
-      df <- df[df$fecha >= fecha_inicial & df$fecha <= fecha_final,]
+      #fecha_inicial <- as.Date(paste(substring(as.character(input$fechas_listado_ertes[1]),1,8),"01",sep = ""))
+      #fecha_final <- as.Date(paste(substring(as.character(input$fechas_listado_ertes[2]),1,8), "28",sep = ""))
+      df <- df[df$fecha >= input$fechas_listado_ertes[1] & df$fecha <= input$fechas_listado_ertes[2],]
 
       df$provincia <- municipios_ertes$Provincia[match(df$M, municipios_ertes$M)]
       
@@ -2182,12 +2213,13 @@ server <- function(input, output, session) {
         )
       }
       
-      df <- df[c(1:949),]
+      df <- na.omit(df)
       
       #Gestión errores
       if(nrow(df) == 0){
         return(0)
       }
+      
       
       return(df)
     })
@@ -2284,34 +2316,43 @@ server <- function(input, output, session) {
     func_recuento_tipos <- function(df, flag_evol){
       df <- df
       
-      df$fecha <- paste(year(df$fecha),"/",month(df$fecha),sep = "")  #Extracción de meses
-      
+      df$fecha <- as.Date(df$fecha, format="%d/%m/%Y")
+      df$Mes <- format(as.Date(df$fecha), "%m/%Y")  #Extracción de meses
+
       # Cálculo suma
-      colnames(df) <- c("Territori","2","3","4","AMB","Fecha")
-      
+      colnames(df) <- c("Territori","1","2","3","4","5","6","7","Fecha","Mes")
+
       if(flag_evol == 1){
         #Recuento por mes y forma jurídica
         df <- df %>%
-          group_by(Fecha) %>%
+          group_by(Mes) %>%
           summarise(
-            `Suma Força mayor` = sum(as.numeric(`2`),na.rm = TRUE),
-            `Suma causes` = sum(as.numeric(`3`),na.rm = TRUE),
-            `Suma Total` = sum(as.numeric(`4`),na.rm = TRUE)
+            `Suma Reducció jornada` = sum(as.numeric(`2`),na.rm = TRUE),
+            `Suma Extinció` = sum(as.numeric(`3`),na.rm = TRUE),
+            `Suma Suspensió i extinció` = sum(as.numeric(`4`),na.rm = TRUE),
+            `Suma Suspensió i reducció` = sum(as.numeric(`5`),na.rm = TRUE),
+            `Suma Reducció i extinció` = sum(as.numeric(`6`),na.rm = TRUE),
+            `Suma Suspensió, reducció i extinció` = sum(as.numeric(`7`),na.rm = TRUE),
+            `Suma Total` = sum(as.numeric(`1`),na.rm = TRUE)
             )
-        
-        df <- df[df$Fecha != "NA/NA",]
-      
+
+        df <- df[df$Mes != "NA/NA",]
+
        # El valor de 1 es para la realización del gráfico de evolución.
         return(df)
       }
       
-      fuerza_mayor <- sum(df$`2`,na.rm = TRUE)
-      causas <- sum(df$`3`,na.rm = TRUE)
-      total <- sum(df$`4`,na.rm = TRUE)
+      `Suma Reducció jornada` <- sum(df$`2`,na.rm = TRUE)
+      `Suma Extinció` <- sum(df$`3`,na.rm = TRUE)
+      `Suma Suspensió i extinció` <- sum(df$`4`,na.rm = TRUE)
+      `Suma Suspensió i reducció` <- sum(df$`5`,na.rm = TRUE)
+      `Suma Reducció i extinció` <- sum(df$`6`,na.rm = TRUE)
+      `Suma Suspensió, reducció i extinció` <- sum(df$`7`,na.rm = TRUE)
+      total <- sum(df$`1`,na.rm = TRUE)
       Territori <- input$Municipio_principal_ertes
-      df <- data.frame(Territori,fuerza_mayor,causas,total,stringsAsFactors = FALSE)
+      df <- data.frame(Territori,`Suma Reducció jornada`,`Suma Extinció`,`Suma Suspensió i extinció`,`Suma Suspensió i reducció`,`Suma Reducció i extinció`,`Suma Suspensió, reducció i extinció`,total,stringsAsFactors = FALSE)
 
-      colnames(df) <- c("Territori","Força mayor","Causes","Total")
+      colnames(df) <- c("Territori","Reducció jornada","Extinció","Suspensió i extinció","Suspensió i reducció","Reducció i extinció","Suspensió, reducció i extinció","Total")
       
       return(df)
     }
@@ -2320,16 +2361,17 @@ server <- function(input, output, session) {
     func_recuento_econom <- function(df, flag_evol){
       df <- df
       
-      df$fecha <- paste(year(df$fecha),"/",month(df$fecha),sep = "")  #Extracción de meses
+      df$fecha <- as.Date(df$fecha, format="%d/%m/%Y")
+      df$Mes <- format(as.Date(df$fecha), "%m/%Y")  #Extracción de meses
       
       if(flag_evol == 1){  #Recuento por fecha
         
-        df <- df[,c(4:26,29)]
+        df <- df[,c(4:26,31)]
         df <- df %>%
-          group_by(fecha) %>%
+          group_by(Mes) %>%
           summarise_each(funs(sum(.,na.rm = TRUE)))
         
-        df <- df[df$fecha != "NA/NA",]
+        df <- df[df$Mes != "NA/NA",]
         return(df)
         
       }else if(flag_evol == 2){ #Recuento por territorio
@@ -2388,16 +2430,22 @@ server <- function(input, output, session) {
         need(df != 0, "")
       )
       
+      df$fecha <- as.Date(df$fecha, format="%d/%m/%Y")
+      
       # Cálculo suma
-      colnames(df) <- c("Territori","2","3","4","AMB","Fecha")
+      colnames(df) <- c("Territori","1","2","3","4","5","6","7","Fecha")
       
-      fuerza_mayor <- round(mean(as.numeric(df$`2`),na.rm = TRUE),0)
-      causas <- round(mean(as.numeric(df$`3`),na.rm = TRUE),0)
-      total <- round(mean(as.numeric(df$`4`),na.rm = TRUE),0)
+      `Suma Reducció jornada` <- round(mean(df$`2`,na.rm = TRUE),0)
+      `Suma Extinció` <- round(mean(df$`3`,na.rm = TRUE),0)
+      `Suma Suspensió i extinció` <- round(mean(df$`4`,na.rm = TRUE),0)
+      `Suma Suspensió i reducció` <- round(mean(df$`5`,na.rm = TRUE),0)
+      `Suma Reducció i extinció` <- round(mean(df$`6`,na.rm = TRUE),0)
+      `Suma Suspensió, reducció i extinció` <-round( mean(df$`7`,na.rm = TRUE),0)
+      total <- round(mean(df$`1`,na.rm = TRUE),0)
       Territori <- input$Municipio_principal_ertes
-      df <- data.frame(Territori,fuerza_mayor,causas,total,stringsAsFactors = FALSE)
+      df <- data.frame(Territori,`Suma Reducció jornada`,`Suma Extinció`,`Suma Suspensió i extinció`,`Suma Suspensió i reducció`,`Suma Reducció i extinció`,`Suma Suspensió, reducció i extinció`,total,stringsAsFactors = FALSE)
       
-      colnames(df) <- c("Territori","Força mayor","Causes","Total")
+      colnames(df) <- c("Territori","Reducció jornada","Extinció","Suspensió i extinció","Suspensió i reducció","Reducció i extinció","Suspensió, reducció i extinció","Total")
       
       tabla <- datatable(df, options = list(pageLength = 5,
                                             columnDefs = list(list(className = 'dt-center', targets = "_all")),
@@ -2460,27 +2508,41 @@ server <- function(input, output, session) {
       )
       
       df <- func_recuento_tipos(df,1) #Flag 1 para devolución recuento
-      
+      colnames(df) <- c("Mes","Reducció jornada","Extinció","Suspensió i extinció","Suspensió i reducció","Reducció i extinció","Suspensió, reducció i extinció","Total")
+
       #Generación df para gráfico de líneas
       tipo <- c()
       fecha <- c()
       recuento <- c()
       for(i in 1:nrow(df)){
-        tipo <- c(tipo,"Força mayor")
-        tipo <- c(tipo,"Causes")
-        tipo <- c(tipo,"Total")
+        tipo <- c(tipo,"Reducció jornada")
+        tipo <- c(tipo,"Extinció")
+        tipo <- c(tipo,"Suspensió i extinció")
+        tipo <- c(tipo,"Suspensió i reducció")
+        tipo <- c(tipo,"Reducció i extinció")
+        tipo <- c(tipo,"Suspensió, reducció i extinció")
         
-        fecha <- c(fecha, rep(df$Fecha[i]))
+        fecha <- c(fecha, rep(df$Mes[i]))
         recuento <- c(recuento, as.numeric(df[i,2]))
         recuento <- c(recuento, as.numeric(df[i,3]))
         recuento <- c(recuento, as.numeric(df[i,4]))
+        recuento <- c(recuento, as.numeric(df[i,5]))
+        recuento <- c(recuento, as.numeric(df[i,6]))
+        recuento <- c(recuento, as.numeric(df[i,7]))
       }
-      df <- data.frame(tipo,fecha,recuento,stringsAsFactors = FALSE)
-      colnames(df) <- c("Tipo","Mes","Recompte")
+      
+      #df <- data.frame(tipo,fecha,recuento,stringsAsFactors = FALSE)
+      #print(df)
+      #colnames(df) <- c("Tipo","Mes","Recompte")
 
       p <- df
-      p <- p %>% plot_ly(x = ~Mes, y = ~Recompte, fill= ~Tipo, color = ~Tipo)
-      p <- p %>% add_trace(type = 'scatter', mode = 'lines+markers')
+      p <- p %>% plot_ly(x = ~Mes)
+      p <- p %>% add_trace(y = ~`Reducció jornada`, type = 'scatter', mode = 'lines+markers',name="Reducció jornada")
+      p <- p %>% add_trace(y = ~Extinció, type = 'scatter', mode = 'lines+markers',name="Extinció")
+      p <- p %>% add_trace(y = ~`Suspensió i extinció`, type = 'scatter', mode = 'lines+markers',name="Suspensió i extinció")
+      p <- p %>% add_trace(y = ~`Suspensió i reducció`, type = 'scatter', mode = 'lines+markers',name="Suspensió i reducció")
+      p <- p %>% add_trace(y = ~`Reducció i extinció`, type = 'scatter', mode = 'lines+markers',name="Reducció i extinció")
+      p <- p %>% add_trace(y = ~`Suspensió, reducció i extinció`, type = 'scatter', mode = 'lines+markers',name="Suspensió, reducció i extinció")
       p <- p %>% layout(
         title = list(text = paste('<b>Evolució mensual ', ifelse(input$variables_ertes == 1, "Expedients", "Treballadors"), " ", input$Municipio_principal_ertes, '</b>',sep = ''), y = -0.1)
       )
@@ -2549,11 +2611,13 @@ server <- function(input, output, session) {
       recuento <- c()
       for(i in 1:nrow(df)){
         tipo <- c(tipo, colnames(df)[2:ncol(df)])
-        fecha <- c(fecha, rep(df$fecha[i]))
+        fecha <- c(fecha, rep(df$Mes[i],(ncol(df)-1)))
         recuento <- c(recuento, as.numeric(df[i,2:ncol(df)]))
       }
       df <- data.frame(tipo,fecha,recuento,stringsAsFactors = FALSE)
       colnames(df) <- c("Tipo","Mes","Recompte")
+      
+      df <- df[-grep("Total",df$Tipo),]
       
       p <- df
       p <- p %>% plot_ly(x = ~Mes, y = ~Recompte, fill= ~Tipo, color = ~Tipo)
@@ -2600,9 +2664,10 @@ server <- function(input, output, session) {
                      "Secció econòmica: ", df$`Secció econòmica`, "<br/>",
                      "Recompte: ", df$Recompte, sep = "") %>% lapply(htmltools::HTML)
       
-      
-      if(max(round(df$Recompte)) < 1000){
-        radios <-round(df$Recompte) * 3
+      if(max(round(df$Recompte)) <= 100){
+        radios <- round(df$Recompte) * 100
+      }else if(max(round(df$Recompte)) < 1000 & max(round(df$Recompte)) > 100){
+        radios <- round(df$Recompte) * 3
       }else if(max(round(df$Recompte)) > 10000){
         radios <- rescale(round(df$Recompte), to = c(0.1, 1)) * 3000
       }else{
