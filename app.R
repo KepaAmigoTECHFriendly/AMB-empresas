@@ -54,9 +54,6 @@ con <- dbConnect(RPostgres::Postgres(), dbname = db, host=host_db, port=db_port,
 
 
 
-
-
-
 # MUNICIPIOS
 # ------------------------
 
@@ -122,7 +119,7 @@ names(lista_variables_borme) <- c("uno","dos","tres","cuatro","cinco","seis","si
 #===========================
 # Referencia de ERTOS
 #===========================
-df_expediente_econom <- read.xlsx(xlsxFile = "publicacio_erto_01072020.xlsx", sheet = 7, skipEmptyRows = TRUE)
+df_expediente_econom <- openxlsx::read.xlsx(xlsxFile = "publicacio_erto_01072020.xlsx", sheet = 7, skipEmptyRows = TRUE)
 # Eliminar fila 1, informativa
 df_expediente_econom <- df_expediente_econom[-1,]
 
@@ -156,6 +153,7 @@ df_expediente_econom$AMB <- municipios_ertes$AMB[match(df_expediente_econom$M, m
 # SIMULACIÓN FECHA ***************
 df_expediente_econom$fecha <- rep("2020-08-01",nrow(df_expediente_econom))
 
+con %>% dbDisconnect()
 
 #=====================================================
 # INTERFAZ DE USUARIO
@@ -611,6 +609,7 @@ server <- function(input, output, session) {
       
       # Evita volver a cargar los datos en caso de seleccionar nuevas fechas comprendidas en las antiguas
       if(fecha_inicial < datos$fechas_actual[1] | fecha_final > datos$fechas_actual[2]){
+        con <- dbConnect(RPostgres::Postgres(), dbname = db, host=host_db, port=db_port, user=db_user, password=db_password) 
 
         datos$fechas_actual <- c(fecha_inicial,fecha_final)
       
@@ -662,15 +661,15 @@ server <- function(input, output, session) {
           datos$borme = df
           progress$close()
         }
+        
+        con %>% dbDisconnect()
       }
     })
     
     
     # Carga de datos ERTOS BBDD
     observeEvent(input$fechas_listado_ertes, {
-      print("Entro fechas")
-      #show_spinner() # show the spinner
-      #show_modal_spinner() # show the modal window
+      con <- dbConnect(RPostgres::Postgres(), dbname = db, host=host_db, port=db_port, user=db_user, password=db_password)
       
       progress <- Progress$new(session)
       progress$set(value = 0.5, message = 'Carregant dades...')
@@ -735,6 +734,7 @@ server <- function(input, output, session) {
       datos$ertes_econom_trabajadores = df_expediente_trabajo
       
       progress$close()
+      con %>% dbDisconnect()
     })
     
     
@@ -2741,7 +2741,11 @@ server <- function(input, output, session) {
       tags$div(id = "1",tags$h4(tags$b(paste("Recompte ", ifelse(input$variables_ertes == 1, "Expedients", "Treballadors"),
                                              " per secció econòmica i territori ", input$Municipio_principal_ertes, sep = ""))))
     )
-
+    
+    # FUNCIÓN A EJECUTAR AL CIERRE DE LA APLICACIÓN
+    session$onSessionEnded(function() {
+      con %>% dbDisconnect()
+    })
 }
 
 # Run the application
