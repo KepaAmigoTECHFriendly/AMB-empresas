@@ -794,8 +794,14 @@ server <- function(input, output, session) {
         
         df <- df[as.Date(df$Data, format="%d/%m/%Y") >= fecha_inicial & as.Date(df$Data, format="%d/%m/%Y") <= fecha_final,]
         
-        if(df == 0){
-          return(0)
+        if(is.data.frame(df)){
+          if(nrow(df) == 0){
+            return(0)
+          }
+        }else{
+          if(df == 0){
+            return(0)
+          }
         }
         
         if(input$tabs_borme == "Mapa"){
@@ -1885,17 +1891,14 @@ server <- function(input, output, session) {
       
       df_filtrados <- datos_filtrados_borme()
       
-      df_filtrados <- df_filtrados[as.numeric(df_filtrados$Latitud) > 41.13 & as.numeric(df_filtrados$Latitud) < 42.32
-                                   & as.numeric(df_filtrados$Longitud) < 3.4 & as.numeric(df_filtrados$Longitud) > 0,]
-      
       shiny::validate(
         need(nrow(na.omit(df_filtrados)) != 0,
              "Atenció!\nNo existeixen dades disponibles pel valor dels filtres seleccionats.\nModifiqueu el valor dels filtres si ho desitja."
         )
       )
       
-      #df_filtrados <- df_filtrados[df_filtrados$Latitud > 39 & df_filtrados$Latitud < 43,]
-      #df_filtrados <- df_filtrados[df_filtrados$Latitud > 36 & df_filtrados$Latitud < 44,]
+      df_filtrados <- df_filtrados[as.numeric(df_filtrados$Latitud) > 41.13 & as.numeric(df_filtrados$Latitud) < 42.32
+                                   & as.numeric(df_filtrados$Longitud) < 3.4 & as.numeric(df_filtrados$Longitud) > 0,]
       
       if(input$variables_mapa == 1){
         variable <- "Constitució objecte social"
